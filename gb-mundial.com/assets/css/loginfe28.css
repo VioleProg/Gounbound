@@ -1,0 +1,1007 @@
+@charset "utf-8";
+@font-face {
+    font-family: "NEXONLv1Gothic";
+    font-style: normal;
+    font-weight: normal;
+    src: url("https://ca.nexon.com/Content/fonts/NEXONLv1GothicOTF.eot");
+    src: local("☺"), url("https://ca.nexon.com/Content/fonts/NEXONLv1GothicOTF.eot?#iefix") format("embedded-opentype"), url("https://ca.nexon.com/Content/fonts/NEXONLv1GothicOTF.woff") format("woff"),
+        url("https://ca.nexon.com/Content/fonts/NEXONLv1GothicOTF.ttf") format("truetype");
+}
+@font-face {
+    font-family: "NEXONLv1Gothic";
+    font-style: normal;
+    font-weight: 700;
+    src: url("https://ca.nexon.com/Content/fonts/NEXONLv1GothicOTFBold.eot");
+    src: local("☺"), url("https://ca.nexon.com/Content/fonts/NEXONLv1GothicOTFBold.eot?#iefix") format("embedded-opentype"), url("https://ca.nexon.com/Content/fonts/NEXONLv1GothicOTFBold.woff") format("woff"),
+        url("https://ca.nexon.com/Content/fonts/NEXONLv1GothicOTFBold.ttf") format("truetype");
+}
+@font-face {
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: normal;
+    src: url("https://ca.nexon.com/Content/fonts/Roboto.eot");
+    src: local("☺"), url("https://ca.nexon.com/Content/fonts/Roboto.eot?#iefix") format("embedded-opentype"), url("https://ca.nexon.com/Content/fonts/Roboto.woff") format("woff"),
+        url("https://ca.nexon.com/Content/fonts/Roboto.ttf") format("truetype");
+}
+@font-face {
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 700;
+    src: url("https://ca.nexon.com/Content/fonts/RobotoBold.eot");
+    src: local("☺"), url("https://ca.nexon.com/Content/fonts/RobotoBold.eot?#iefix") format("embedded-opentype"), url("https://ca.nexon.com/Content/fonts/RobotoBold.woff") format("woff"),
+        url("https://ca.nexon.com/Content/fonts/RobotoBold.ttf") format("truetype");
+}
+
+/* reset */
+html,
+body,
+div,
+p,
+img,
+span,
+a,
+em,
+strong,
+pre,
+h1,
+h2,
+h3,
+h4,
+h4,
+h5,
+h6,
+ul,
+ol,
+li,
+dl,
+dt,
+dd,
+table,
+tbody,
+thead,
+tfoot,
+tr,
+th,
+td,
+form,
+fieldset,
+legend,
+caption,
+input,
+textarea,
+button,
+select,
+object,
+video,
+iframe {
+    margin: 0;
+    padding: 0;
+}
+header,
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+hgroup,
+menu,
+nav,
+section {
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+html {
+    overflow-y: scroll;
+}
+body {
+    position: relative;
+    width: 100%;
+    font-family: "NEXONLv1Gothic", "맑은 고딕", "Malgun Gothic", "sans-serif";
+    color: #333;
+    line-height: 1;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-size: 14px;
+}
+input,
+textarea,
+button,
+select {
+    font-family: "NEXONLv1Gothic", "맑은 고딕", "Malgun Gothic", "sans-serif";
+    font-size: 14px;
+}
+textarea {
+    overflow-y: auto;
+    resize: none;
+}
+img,
+fieldset,
+button {
+    border: 0;
+}
+button {
+    border: 0;
+    background: none;
+    cursor: pointer;
+    *line-height: 1 !important;
+}
+button:active,
+button:focus {
+    outline: none;
+    border: 0;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+ul,
+ol {
+    list-style: none;
+}
+address {
+    font-style: normal;
+}
+a {
+    text-decoration: none;
+    color: #333;
+    background-color: transparent;
+}
+a,
+a:link {
+    text-decoration: none;
+}
+a,
+img {
+    vertical-align: top;
+}
+input[type="text"]::-ms-clear,
+hr {
+    display: none;
+}
+input:focus,
+textarea:focus {
+    outline: 0;
+}
+caption,
+legend {
+    text-indent: -9999em;
+    font-size: 0;
+    line-height: 0;
+    width: 0;
+    height: 0;
+}
+.ir {
+    display: block;
+    text-indent: -99999px;
+    overflow: hidden;
+}
+.blind {
+    overflow: hidden;
+    visibility: hidden;
+    position: absolute;
+    top: -9999em;
+    left: 0;
+    width: 0;
+    height: 0;
+}
+
+html,
+body {
+    height: 100%;
+    background-color: #f4f4f4;
+}
+#loginWrapper {
+    position: relative;
+    width: 980px;
+    margin: 0 auto;
+}
+#loginWrapper h1 span,
+.lnb h2,
+.lnb .noti a,
+.server .btn_chk,
+.remember .btn_id_chk,
+.icon {
+    display: block;
+    text-indent: -9999px;
+    overflow: hidden;
+    background: url("../../../ssl.nexon.com/S2/Game/ca/ca2019/common/spr_full_login_v2_A2C639D6.png") no-repeat;
+}
+#loginWrapper h1 {
+    height: 60px;
+    padding-top: 20px;
+    padding-left: 28px;
+    font-size: 24px;
+    color: #000;
+}
+#loginWrapper h1 span {
+    display: inline-block;
+    width: 190px;
+    height: 36px;
+    margin-top: -4px;
+    vertical-align: middle;
+}
+#loginContainer {
+    position: relative;
+    width: 100%;
+    height: 660px;
+    z-index: 3;
+    background-color: #fff;
+    border-radius: 38px;
+    box-shadow: 0px 7px 14px 2px rgba(193, 203, 211, 0.8);
+}
+#loginFooter {
+    position: relative;
+    width: 100%;
+    height: 65px;
+    padding-top: 120px;
+    text-align: center;
+    font-size: 11px;
+    color: #767676;
+    font-family: "맑은 고딕", "Malgun Gothic";
+}
+
+.lnb {
+    float: left;
+    width: 294px;
+    height: 100%;
+    padding: 45px 0 0 45px;
+    border-radius: 38px 0 0 38px;
+    box-sizing: border-box;
+    background: #33d8c6 url("../../../ssl.nexon.com/S2/Game/ca/ca2019/common/bg_full_login_lnb.png") no-repeat;
+}
+.lnb h2 {
+    width: 66px;
+    height: 66px;
+    text-indent: -9999px;
+    overflow: hidden;
+    background-position: 0 -50px;
+}
+.find_idpw .lnb h2 {
+    background-position: -100px -50px;
+}
+.lnb li {
+    padding-top: 38px;
+}
+.lnb li a {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 18px;
+    font-size: 22px;
+    color: #fff;
+}
+.lnb li a::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: inline-block;
+    width: 19px;
+    height: 4px;
+    background-color: #90efe5;
+    border-radius: 2px;
+    transition: width 0.3s cubic-bezier(0, 1, 1, 1);
+    transform-origin: "right bottom";
+}
+.lnb li.active a {
+    padding-bottom: 16px;
+    font-size: 32px;
+    font-weight: 700;
+}
+.lnb li.active a::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: inline-block;
+    width: 100%;
+    height: 7px;
+    background: #fff url("../../../ssl.nexon.com/S2/Game/ca/ca2019/common/bg_full_login_dot1.png") no-repeat right bottom;
+    border-radius: 4px;
+}
+.lnb li.active a.dot2::before {
+    background-image: url("../../../ssl.nexon.com/S2/Game/ca/ca2019/common/bg_full_login_dot2.png");
+}
+.lnb .noti {
+    position: absolute;
+    left: 50px;
+    bottom: 57px;
+    font-size: 12px;
+    color: #c2fffa;
+    line-height: 18px;
+}
+.lnb .noti a {
+    color: #fff;
+    text-decoration: underline;
+    font-size: 14px;
+    display: inline-block;
+    height: 24px;
+    line-height: 24px;
+    margin-top: 20px;
+    padding: 1px 0 0 32px;
+    text-indent: 0;
+    background-position: 0 -450px;
+}
+
+.t_contents {
+    position: relative;
+    float: left;
+    width: 593px;
+    padding: 154px 0 0 93px;
+}
+.find_idpw .t_contents {
+    padding-top: 168px;
+}
+.find_idpw #loginCon2 {
+    padding-top: 134px;
+} /* 20220609 수정 */
+.t_contents fieldset {
+    width: 506px;
+}
+.t_contents .noti_email {
+    position: relative;
+    top: 90px;
+    font-size: 14px;
+}
+.t_contents .noti_email::before {
+    position: relative;
+    display: block;
+    content: "";
+    width: 500px;
+    height: 4px;
+    background-color: #f4f4f4;
+    border-radius: 4px;
+}
+.t_contents .noti_email h5 {
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    color: #555555;
+    margin-top: 25px;
+}
+.t_contents .noti_email h5 span {
+    width: 54px;
+    height: 24px;
+    border-radius: 12px;
+    background-color: #555555;
+    line-height: 24px;
+    color: #fff;
+    text-align: center;
+    margin-right: 8px;
+    display: inline-block;
+}
+.t_contents .noti_email ul {
+    color: #9c9c9c;
+    margin-top: 8px;
+}
+.t_contents .noti_email ul li {
+    line-height: 25px;
+}
+.t_contents .noti_email ul li a {
+    color: #0f97ff;
+}
+
+.server {
+    position: absolute;
+    left: 93px;
+    top: 154px;
+    width: 330px;
+    height: 48px;
+}
+.server::before {
+    content: "";
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 15px;
+    width: 153px;
+    height: 4px;
+    background-color: #f4f4f4;
+    border-radius: 2px;
+}
+.server .btn_chk {
+    display: inline-block;
+    text-indent: 0;
+    width: 68px;
+    margin-right: 12px;
+    padding-left: 38px;
+    height: 30px;
+    line-height: 30px;
+    color: #555;
+    background-position: 0 -200px;
+}
+.server .btn_chk.on {
+    background-position: 0 -250px;
+}
+
+.remember {
+    text-align: right;
+    height: 48px;
+}
+.remember .btn_id_chk {
+    display: inline-block;
+    text-indent: 0;
+    padding-left: 38px;
+    height: 30px;
+    color: #555;
+    background-position: 0 -300px;
+}
+.remember .btn_id_chk.on {
+    color: #00d4c3;
+    background-position: 0 -350px;
+}
+
+.idpw .id,
+.idpw .pw {
+    position: relative;
+    display: block;
+    width: 500px;
+    height: 60px;
+    line-height: 62px;
+    margin-bottom: 8px;
+    font-size: 16px;
+    background-color: #f7f7f7;
+    border-radius: 30px;
+    border: 1px solid #d4d4d4;
+}
+.idpw input {
+    margin-left: 36px;
+    width: 436px;
+    height: 58px;
+    border: 0;
+    vertical-align: top;
+    background-color: #f7f7f7;
+    color: #333;
+    font-size: 16px;
+}
+.idpw label {
+    color: #b8b6b6;
+    position: absolute;
+    left: 36px;
+    top: 0;
+    height: 60px;
+    line-height: 62px;
+}
+.btn_submit {
+    display: inline-block;
+    margin-top: 6px;
+    width: 500px;
+    height: 60px;
+    line-height: 62px;
+    font-size: 18px;
+    background-color: #33d8c6;
+    border-radius: 30px;
+    color: #fff;
+    text-align: center;
+}
+.btn_submit:hover {
+    background-color: #00aaac;
+}
+
+.id_result {
+    width: 500px;
+    margin-top: -120px;
+    background-color: #fff;
+}
+.id_result .txt1 {
+    line-height: 26px;
+}
+.id_result ul {
+    max-height: 164px;
+    margin: 26px 0 18px;
+    border: 1px solid #d4d4d4;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.id_result li {
+    height: 30px;
+    line-height: 30px;
+    padding-left: 20px;
+    color: #555555;
+}
+.id_result li:first-child {
+    margin-top: 10px;
+}
+.id_result li:last-child {
+    margin-bottom: 10px;
+}
+.id_result li .happy {
+    display: inline-block;
+    margin-right: 3px;
+    color: #00d4c3;
+}
+.id_result li .dream {
+    display: inline-block;
+    margin-right: 3px;
+    color: #9963ef;
+}
+
+.pw_reset {
+    width: 500px;
+    margin-top: -120px;
+    background-color: #fff;
+}
+.pw_reset .info2 li {
+    color: #9c9c9c;
+    font-size: 14px;
+    line-height: 24px;
+    text-indent: -14px;
+}
+.pw_reset .info2 li em {
+    font-style: normal;
+    color: #555;
+}
+
+#loginCon3 .idpw {
+    margin-top: 25px;
+}
+#loginCon3 .idpw .pw {
+    width: 243px;
+    display: inline-block;
+    margin: 0 2px 8px;
+}
+#loginCon3 .idpw .pw input {
+    width: 182px;
+}
+
+.func {
+    width: 100%;
+    padding: 21px 0 45px;
+    text-align: center;
+}
+.func a {
+    display: inline-block;
+    width: 32%;
+    color: #767676;
+    height: 14px;
+    line-height: 14px;
+    border-left: 1px solid #e2e2e2;
+}
+.func a:first-child {
+    border: 0;
+}
+.func a:hover {
+    color: #00d4c3;
+}
+#loginCon2 .func a,
+#loginCon3 .func a {
+    width: 48%;
+}
+
+.tpa {
+    position: absolute;
+    left: 387px;
+    top: 378px;
+    width: 500px;
+}
+.tpa .or {
+    position: relative;
+    width: 100%;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: #b8b6b6;
+    text-align: center;
+}
+.tpa .or::before {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 220px;
+    height: 4px;
+    background-color: #f4f4f4;
+    border-radius: 2px;
+}
+.tpa .or::after {
+    content: "";
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 5px;
+    width: 220px;
+    height: 4px;
+    background-color: #f4f4f4;
+    border-radius: 2px;
+}
+.tpa a {
+    position: relative;
+    display: inline-block;
+    width: 210px;
+    height: 60px;
+    line-height: 62px;
+    margin-bottom: 8px;
+    padding-left: 34px;
+    font-size: 16px;
+    color: #333;
+    background-color: #fff;
+    border: 1px solid #e4e4e4;
+    border-radius: 30px;
+    text-align: center;
+}
+.tpa a:hover {
+    background-color: #f7f7f7;
+}
+.tpa a .icon {
+    position: absolute;
+    left: 35px;
+    top: 17px;
+    width: 24px;
+    height: 24px;
+}
+.tpa .btn_gg,
+.tpa .btn_ap {
+    margin-left: 3px;
+}
+.tpa .btn_fb .icon {
+    background-position: 0 -125px;
+    margin-right: 15px;
+}
+.tpa .btn_gg .icon {
+    background-position: 0 -150px;
+}
+.tpa .btn_nv .icon {
+    background-position: 0 -175px;
+}
+.tpa .btn_ap .icon {
+    height: 28px;
+    margin-top: -1px;
+    background-position: 0 -490px;
+}
+
+.t_contents .txt1 {
+    font-size: 18px;
+    color: #555;
+    text-align: center;
+    padding: 5px 0 18px;
+}
+.t_contents .txt2 {
+    font-size: 14px;
+    line-height: 26px;
+    color: #9c9c9c;
+    text-align: center;
+}
+#loginCon4 .txt2 {
+    width: 506px;
+    margin: 85px 0 25px 0;
+}
+
+#loginWrapper .obj {
+    position: absolute;
+    left: 50%;
+    display: block;
+    text-indent: -9999px;
+    overflow: hidden;
+    z-index: 1;
+    background: url("../img/login/bg_full_login.png") no-repeat;
+    transform: rotate(0.01deg);
+}
+#loginWrapper .cha1 {
+    top: 400px;
+    margin-left: 362px;
+    width: 365px;
+    height: 455px;
+    background-position: 0 -150px;
+    animation: cha1 0.65s cubic-bezier(0, 1, 1, 1);
+}
+#loginWrapper .hi {
+    top: 238px;
+    margin-left: 536px;
+    width: 146px;
+    height: 130px;
+    background-position: 0 0;
+    animation: hi 0.56s alternate cubic-bezier(0, 1, 1, 1);
+}
+#loginWrapper.find_idpw .obj {
+    background-image: url("../../../ssl.nexon.com/S2/Game/ca/ca2019/common/bg_full_findid.png");
+}
+#loginWrapper.find_idpw .cha1 {
+    width: 400px;
+}
+
+#loginWrapper .info {
+    position: absolute;
+    left: 396px;
+    top: 30px;
+}
+#loginWrapper .info li {
+    color: #9c9c9c;
+    font-size: 14px;
+    line-height: 24px;
+    text-indent: -14px;
+}
+#loginWrapper .info li em {
+    font-style: normal;
+    color: #555;
+}
+
+dl.input {
+    font-size: 14px;
+    margin-top: 20px;
+    padding-bottom: 10px;
+    overflow: hidden;
+}
+dl.input dt {
+    position: relative;
+    float: left;
+    width: 126px;
+    height: 60px;
+    line-height: 64px;
+    margin: 0 22px 8px 0;
+    color: #555;
+    font-weight: 700;
+}
+dl.input dt::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    top: 28px;
+    width: 19px;
+    height: 4px;
+    background-color: #d9d9d9;
+    border-radius: 3px;
+}
+dl.input dd {
+    position: relative;
+    float: right;
+    width: 352px;
+    height: 60px;
+    line-height: 62px;
+    margin-bottom: 8px;
+    border: 1px solid #d4d4d4;
+    border-radius: 30px;
+}
+dl.input dd input {
+    margin-left: 36px;
+    width: 198px;
+    height: 58px;
+    border: 0;
+    vertical-align: top;
+    background-color: #fff;
+    color: #333;
+    font-size: 16px;
+}
+dl.input dd label {
+    color: #b8b6b6;
+    position: absolute;
+    left: 36px;
+    top: 0;
+    height: 60px;
+    line-height: 62px;
+}
+dl.input dd .btn_find {
+    position: absolute;
+    right: 9px;
+    top: 10px;
+    display: inline-block;
+    width: 118px;
+    height: 40px;
+    line-height: 42px;
+    border-radius: 20px;
+    background-color: #adadad;
+    color: #fff;
+}
+dl.input dd .btn_find:hover {
+    background-color: #585858;
+}
+dl.input dd.birth {
+    border: 0;
+    line-height: 1;
+}
+dl.input dd .year,
+dl.input dd .month,
+dl.input dd .day {
+    float: left;
+}
+dl.input dd.birth .year,
+dl.input dd.birth .month {
+    margin-right: 8px;
+}
+dl.input dd.server {
+    left: auto;
+    top: auto;
+    border: 0;
+}
+dl.input dd.server::before {
+    display: none;
+}
+dl.input dd.disabled {
+    background-color: #f7f7f7;
+    color: #767676;
+    border: 1px solid #d4d4d4;
+}
+dl.input dd.disabled input {
+    background-color: #f7f7f7;
+    color: #767676;
+    font-size: 14px;
+}
+dl.input dd.disabled .input {
+    margin-left: 36px;
+    width: 198px;
+    height: 58px;
+}
+
+/* selectbox */
+.selectbox {
+    position: relative;
+    width: 112px;
+    height: 58px;
+}
+.selectbox .btn_select {
+    position: relative;
+    z-index: 20;
+    width: 112px;
+    height: 60px;
+    line-height: 62px;
+    padding: 0 20px;
+    color: #b8b6b6;
+    text-align: left;
+    background: #fff url("../../../ssl.nexon.com/S2/Game/ca/ca2019/common/icon_select_dn.png") no-repeat 82% 48%;
+    letter-spacing: -1px;
+    border: 1px solid #d4d4d4;
+    border-radius: 30px;
+}
+.selectbox .btn_select:active,
+.selectbox .btn_select:focus {
+    outline: none;
+}
+.selectbox ul {
+    display: none;
+    position: relative;
+    width: 110px;
+    top: 0;
+    max-height: 136px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 8px 0 7px;
+    z-index: 20;
+    background-color: #fff;
+    text-align: left;
+    border: 1px solid #d4d4d4;
+    border-bottom: 1px solid #eee;
+    border-top: 0;
+}
+.selectbox ul li a {
+    display: block;
+    color: #555555;
+    padding: 5px 6px 3px 16px;
+    line-height: 20px;
+}
+.selectbox ul li a:hover {
+    background-color: #e0f1ef;
+}
+.selectbox.show ul {
+    display: block;
+    z-index: 100;
+}
+.selectbox.show .btn_select {
+    border: 0;
+    border: 1px solid #d4d4d4;
+    border-bottom: 1px solid #eee;
+    border-radius: 30px 30px 0 0;
+    background-image: url("../../../ssl.nexon.com/S2/Game/ca/ca2019/common/icon_select_up.png");
+}
+.selectbox .btn_select.selected {
+    color: #333;
+}
+.selectbox .btm {
+    display: none;
+    position: relative;
+    z-index: 5;
+    width: 110px;
+    height: 30px;
+    border-radius: 0 0 30px 30px;
+    border: 1px solid #d4d4d4;
+    border-top: 0;
+    background-color: #fff;
+}
+.selectbox.show .btm {
+    display: block;
+}
+
+/* 20220512 로그인 수정 시작 */
+.email_top p {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #555555;
+    font-size: 18px;
+}
+.email_top ul {
+    width: 270px;
+    height: 60px;
+    margin: 0 auto;
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+.email_top ul li {
+    float: left;
+    background-image: url("../../../lwi.nexon.com/ca/common/spr_login_email.png");
+    width: 60px;
+    height: 60px;
+    margin-right: 10px;
+    text-indent: -99999px;
+}
+.email_top ul li.email_fb {
+    background-position: -10px -60px;
+}
+.email_top ul li.email_google {
+    background-position: -10px -140px;
+}
+.email_top ul li.email_naver {
+    background-position: -10px -220px;
+}
+.email_top ul li.email_app {
+    margin-right: 0;
+    background-position: -10px -300px;
+}
+.idpw {
+    color: #767676;
+    font-size: 14px;
+}
+.idpw p {
+    text-align: center;
+    line-height: 160%;
+    margin: 20px 0 28px;
+}
+.ca_details {
+    border-top: 4px solid #f4f4f4;
+    padding-top: 20px;
+    height: 60px;
+}
+.ca_details a {
+    position: relative;
+    display: inline-block;
+    width: 500px;
+    height: 60px;
+    line-height: 60px;
+    border-radius: 30px;
+    border: 1px solid #e5e5e5;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.ca_details a:hover {
+    background-color: #f7f7f7;
+}
+.ca_details a:before {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    width: 30px;
+    height: 30px;
+    background-image: url("../../../lwi.nexon.com/ca/common/spr_login_email.png");
+    background-position: -10px -10px;
+}
+/* 20220512 로그인 수정 끝 */
+
+@keyframes cha1 {
+    from {
+        transform: translateX(-460px);
+    }
+}
+@keyframes hi {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    90% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
