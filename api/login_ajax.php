@@ -2,6 +2,11 @@
 require_once '../config.php';
 require_once '../includes/functions.php';
 
+// Garantir que a sessão está iniciada
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

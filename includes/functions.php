@@ -158,13 +158,19 @@ function register($login, $nick, $email, $password, $gender, $country = '28') {
         
         // Commit da transação
         $conn->commit();
+        
+        // Contar total de usuários após criar a conta
+        $count_result = $conn->query("SELECT COUNT(*) as total FROM gunwcuser");
+        $count_row = $count_result->fetch_assoc();
+        $user_number = $count_row ? (int)$count_row['total'] : 0;
+        
     } catch (Exception $e) {
         // Rollback em caso de erro
         $conn->rollback();
         return ['success' => false, 'message' => 'Erro ao criar conta: ' . $e->getMessage()];
     }
     
-    return ['success' => true, 'message' => 'Conta criada com sucesso!'];
+    return ['success' => true, 'message' => 'Conta criada com sucesso!', 'user_number' => $user_number];
 }
 
 /**

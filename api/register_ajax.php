@@ -6,6 +6,11 @@ require_once '../includes/functions.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
+// Garantir que a sessão está iniciada
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -64,11 +69,27 @@ if (!empty($errors)) {
 try {
     $result = register($login, $nick, $email, $password, $gender);
     if ($result['success']) {
+        $user_number = isset($result['user_number']) ? $result['user_number'] : 0;
+        $message = 'Conta criada com sucesso!';
+        if ($user_number > 0) {
+            $message = 'Você é o número ' . $user_number . '! Conta criada com sucesso!';
+        }
+        
         // Fazer login automático após registro
         if (login($login, $password)) {
-            echo json_encode(['success' => true, 'message' => 'Conta criada com sucesso!', 'redirect' => 'dashboard.php']);
+            echo json_encode([
+                'success' => true, 
+                'message' => $message, 
+                'user_number' => $user_number,
+                'redirect' => 'dashboard.php'
+            ]);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Conta criada, mas não foi possível fazer login automaticamente. Tente fazer login manualmente.']);
+            echo json_encode([
+                'success' => true, 
+                'message' => $message . ' Faça login para continuar.', 
+                'user_number' => $user_number,
+                'redirect' => 'index.php'
+            ]);
         }
     } else {
         echo json_encode(['success' => false, 'message' => $result['message']]);

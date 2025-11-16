@@ -608,11 +608,24 @@ function handleRegister() {
     })
     .then(data => {
         if (data.success) {
-            showAlert(alertDiv, data.message, 'success');
-            setTimeout(() => {
-                const redirectPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + (data.redirect || 'dashboard.php');
-                window.location.href = redirectPath;
-            }, 1000);
+            // Exibir mensagem com número da conta
+            let message = data.message || 'Conta criada com sucesso!';
+            if (data.user_number) {
+                message = 'Você é o número ' + data.user_number + '! Conta criada com sucesso!';
+            }
+            showAlert(alertDiv, message, 'success');
+            
+            // Se houver redirect, redirecionar após 2 segundos
+            if (data.redirect) {
+                setTimeout(() => {
+                    const redirectPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + data.redirect;
+                    window.location.href = redirectPath;
+                }, 2000);
+            } else {
+                // Se não houver redirect, apenas reabilitar o botão
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Criar Conta';
+            }
         } else {
             showAlert(alertDiv, data.message || 'Erro ao criar conta. Tente novamente.', 'error');
             submitBtn.disabled = false;

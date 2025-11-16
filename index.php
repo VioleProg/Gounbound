@@ -164,8 +164,50 @@ include 'includes/header.php';
                     </div>
                 </div>
                 
-                <div class="news-logo-container">
-                    <img src="Assets/logo.png" alt="Gunbol Logo" class="news-logo">
+                <div class="news-ranking-container">
+                    <h3 class="news-ranking-title">Top 3</h3>
+                    <div class="news-ranking-list">
+                        <?php
+                        // Buscar top 5 jogadores
+                        try {
+                            $top5_query = "SELECT g.Nickname, g.TotalScore, g.Money, g.TotalRank 
+                                           FROM game g 
+                                           ORDER BY g.TotalRank ASC 
+                                           LIMIT 3";
+                            $top5_result = $conn->query($top5_query);
+                            
+                            if ($top5_result && $top5_result->num_rows > 0) {
+                                $position = 1;
+                                while ($player = $top5_result->fetch_assoc()) {
+                                    $nickname = htmlspecialchars($player['Nickname'] ?? 'N/A');
+                                    $score = number_format($player['TotalScore']);
+                                    $rank = $player['TotalRank'];
+                        ?>
+                        <div class="news-ranking-item">
+                            <div class="news-ranking-position"><?php echo $position; ?>º</div>
+                            <div class="news-ranking-info">
+                                <div class="news-ranking-name"><?php echo $nickname; ?></div>
+                                <div class="news-ranking-stats">
+                                    <span class="news-ranking-stat"><?php echo $score; ?> pts</span>
+                                    <span class="news-ranking-stat">#<?php echo $rank; ?></span>
+                                </div>
+                            </div>
+                        </div>
+                        <?php
+                                    $position++;
+                                }
+                            } else {
+                        ?>
+                        <div class="news-ranking-empty">Nenhum jogador encontrado</div>
+                        <?php
+                            }
+                        } catch (Exception $e) {
+                        ?>
+                        <div class="news-ranking-empty">Erro ao carregar ranking</div>
+                        <?php
+                        }
+                        ?>
+                    </div>
                 </div>
             </div>
         </div>
