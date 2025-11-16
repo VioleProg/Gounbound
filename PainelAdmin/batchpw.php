@@ -1,15 +1,12 @@
 <?php
-session_start();
-$user = $_SESSION['user'];
+// verify.php já é incluído em header.php
 include('header.php');
-include("verify.php");
-require_once ( "../mesh.php" );
+require_once("../mesh.php");
 ?>
-		
 
 <a name='maincontent'></a>
 
-<?PHP
+<?php
 echo "<table width='530px'>";
 echo "<h2><font color='#adadad'>Batch Password</font></h2>";
 echo "<font color='#939390'>Find multiple accounts with the same password.";
@@ -17,34 +14,32 @@ echo "<br /><form method=post>Search Account(s) by Password: <input name=search>
 echo "</table>";
 
 echo "<table width='79%'>";
-if ( isset( $_POST['submit'] ) )
-{
-//seeing if that password exists
-$sqlpw = mysql_query("SELECT * FROM user WHERE Password='$search'");
-$countpw = mysql_fetch_array($sqlpw);
-if($countpw == 0)
-     {
-      die("<td><font color='red'>No accounts can be found with that password</font></td></table>");
-     }
- else
-      {
-$search = mysql_real_escape_string($_POST['search']);
-$sql = mysql_query("SELECT * FROM user WHERE Password='$search'");
-echo "<table width='79%'>";
-echo "<tr><th>Id</th><th>Game ID</th><th>Password</th></tr>";
-     while($batchpw = mysql_fetch_array($sql))
-     {
-     echo "<tr>";
-     echo "<td><a href='account.php?search=".$batchpw['Id']."'>".$batchpw['Id']."</a></td>";
-     echo "<td>".$batchpw['NickName']."</td>";
-     echo "<td>".$batchpw['Password']."</td>";
-     echo "</tr>";
+if (isset($_POST['submit'])) {
+    $search = mysql_real_escape_string($_POST['search'] ?? '');
     
-     }
-      echo "</table>";
-
-
-       }        
+    if (empty($search)) {
+        die("<td><font color='red'>Please enter a password to search</font></td></table>");
+    }
+    
+    // Buscar em gunwcuser (tabela principal)
+    $sqlpw = mysql_query("SELECT * FROM gunwcuser WHERE Password='$search'");
+    $count = mysql_num_rows($sqlpw);
+    
+    if ($count == 0) {
+        die("<td><font color='red'>No accounts can be found with that password</font></td></table>");
+    } else {
+        echo "<table width='79%'>";
+        echo "<tr><th>Id</th><th>Username</th><th>Nickname</th><th>Password</th></tr>";
+        while ($batchpw = mysql_fetch_assoc($sqlpw)) {
+            echo "<tr>";
+            echo "<td><a href='account.php?search=" . htmlspecialchars($batchpw['Id']) . "'>" . htmlspecialchars($batchpw['Id']) . "</a></td>";
+            echo "<td>" . htmlspecialchars($batchpw['user'] ?? 'N/A') . "</td>";
+            echo "<td>" . htmlspecialchars($batchpw['NickName'] ?? 'N/A') . "</td>";
+            echo "<td>" . htmlspecialchars($batchpw['Password']) . "</td>";
+            echo "</tr>";
+        }
+        echo "</table>";
+    }
 }
 echo "</table>";
 ?>

@@ -75,20 +75,58 @@ try {
             $message = 'Você é o número ' . $user_number . '! Conta criada com sucesso!';
         }
         
+        // Buscar informações do item inicial (46984698)
+        global $conn;
+        $item_id = 46984698;
+        $item_name = 'Item Inicial';
+        $stmt_item = $conn->prepare("SELECT menu_name FROM MENU WHERE Item1 = ?");
+        if ($stmt_item) {
+            $stmt_item->bind_param("i", $item_id);
+            $stmt_item->execute();
+            $result_item = $stmt_item->get_result();
+            if ($row_item = $result_item->fetch_assoc()) {
+                $item_name = $row_item['menu_name'] ?? 'Item Inicial';
+            }
+            $stmt_item->close();
+        }
+        
+        // Valores iniciais que o usuário recebe
+        $initial_cash = 50000;
+        $initial_money = 300000;
+        $item_expire_days = 1000;
+        
         // Fazer login automático após registro
         if (login($login, $password)) {
             echo json_encode([
                 'success' => true, 
                 'message' => $message, 
                 'user_number' => $user_number,
-                'redirect' => 'dashboard.php'
+                'redirect' => 'dashboard.php',
+                'registration_info' => [
+                    'login' => $login,
+                    'nick' => $nick,
+                    'email' => $email,
+                    'cash' => $initial_cash,
+                    'money' => $initial_money,
+                    'item_name' => $item_name,
+                    'item_expire_days' => $item_expire_days
+                ]
             ]);
         } else {
             echo json_encode([
                 'success' => true, 
                 'message' => $message . ' Faça login para continuar.', 
                 'user_number' => $user_number,
-                'redirect' => 'index.php'
+                'redirect' => 'index.php',
+                'registration_info' => [
+                    'login' => $login,
+                    'nick' => $nick,
+                    'email' => $email,
+                    'cash' => $initial_cash,
+                    'money' => $initial_money,
+                    'item_name' => $item_name,
+                    'item_expire_days' => $item_expire_days
+                ]
             ]);
         }
     } else {

@@ -1,15 +1,8 @@
-<?PHP include "header.php"; 
-include("verify.php");
-session_start();
-include("../mesh.php");
+<?php 
+// Redirecionar para o novo painel administrativo
+header("Location: admin_panel.php");
+exit;
 ?>
-<div id="main">
-
-<a name="maincontent"></a>
-
-
-
-	<h1>GunBound Omega Administrator Control Panel</h1>
          <br />
 
          <p>Welcome to the administration backend. You can find tools for managing the game, server,
@@ -40,32 +33,50 @@ include("../mesh.php");
 	<tr>
 		<td>Registered users: </td>
 
-		<td><strong><?PHP $numberusers = mysql_fetch_row(mysql_query("SELECT COUNT(*) FROM `game`"));
-							   echo "{$numberusers[0]}"; ?></strong></td>
+		<td><strong><?php 
+		$result = mysql_query("SELECT COUNT(*) as total FROM `game`");
+		$row = mysql_fetch_assoc($result);
+		echo $row['total'] ?? 0;
+		?></strong></td>
 
 		<td>Server version: </td>
 		<td><strong>556</strong></td>
 	</tr>
 	<tr>
 		<td>Inactive users: </td>
-		<td><strong><?PHP $numberno = mysql_fetch_row(mysql_query("SELECT COUNT(*) FROM `game` WHERE LastUpdateTime='0000-00-00 00:00:00'"));
-							   echo "{$numberno[0]}"; ?></strong></td>
+		<td><strong><?php 
+		$result = mysql_query("SELECT COUNT(*) as total FROM `game` WHERE LastUpdateTime='0000-00-00 00:00:00' OR LastUpdateTime IS NULL");
+		$row = mysql_fetch_assoc($result);
+		echo $row['total'] ?? 0;
+		?></strong></td>
 
 		<td>Website version: </td>
 		<td><strong>1.1</strong></td>
 	</tr>
 	<tr>
 		<td>Users online: </td>
-		<td><strong><?PHP $numberon = mysql_fetch_row(mysql_query("SELECT COUNT(*) FROM `currentuser`"));
-							   echo "{$numberon[0]}"; ?></strong></td>
+		<td><strong><?php 
+		// Verificar se a tabela currentuser existe
+		$result = @mysql_query("SELECT COUNT(*) as total FROM `currentuser`");
+		if ($result) {
+			$row = mysql_fetch_assoc($result);
+			echo $row['total'] ?? 0;
+		} else {
+			echo "0";
+		}
+		?></strong></td>
 		<td>Database Version: </td>
 
 		<td><strong>1.0.2100</strong></td>
 	</tr>
 	<tr>
 		<td>Staff members: </td>
-		<td><strong><?PHP $numbersta = mysql_fetch_row(mysql_query("SELECT COUNT(*) FROM `user` WHERE Authority = '100' OR Authority = '99'"));
-							   echo "{$numbersta[0]}"; ?></strong></td>
+		<td><strong><?php 
+		// Authority está apenas em gunwcuser (tabela principal)
+		$result = mysql_query("SELECT COUNT(*) as total FROM `gunwcuser` WHERE Authority >= 98");
+		$row = mysql_fetch_assoc($result);
+		echo $row['total'] ?? 0;
+		?></strong></td>
 		<td>Client Version: </td>
 
 		<td><strong>5.85</strong></td>
@@ -90,15 +101,18 @@ include("../mesh.php");
 	</tr>
         </tbody>
 	</table>
-<?PHP 
-$note = mysql_real_escape_string($_POST['add_note']);
+<?php 
 if(isset($_POST['submitnote'])){
-if($note){
-if((strlen($note)>20) || (strlen($note)<2)){
-          die("<script>alert('Note char limit: 2~20'); history.back();</script>");
-          } 
-echo "<script>alert('Note has been posted!'); history.back();</script>";
-}else{ echo "<script>alert('Insert a note'); history.back();</script>"; }
+    $note = isset($_POST['add_note']) ? mysql_real_escape_string($_POST['add_note']) : '';
+    if($note){
+        if((strlen($note)>20) || (strlen($note)<2)){
+            die("<script>alert('Note char limit: 2~20'); history.back();</script>");
+        } 
+        // Aqui você pode salvar a nota no banco de dados se necessário
+        echo "<script>alert('Note has been posted!'); history.back();</script>";
+    } else { 
+        echo "<script>alert('Insert a note'); history.back();</script>"; 
+    }
 }
 ?>
 	
@@ -125,19 +139,22 @@ echo "<script>alert('Note has been posted!'); history.back();</script>";
 </tbody>
 </table>
 
-<?PHP 
-$sqlauth = mysql_query("SELECT * FROM user WHERE Id='".$_SESSION['user']."'");
+<?php 
+$user_id = $_SESSION['user_id'] ?? $_SESSION['user'] ?? '';
+// Authority está em gunwcuser (tabela principal)
+$sqlauth = mysql_query("SELECT Authority FROM gunwcuser WHERE Id='".mysql_real_escape_string($user_id)."'");
 $sqllyauth = mysql_fetch_assoc($sqlauth);
-$adminauth = $sqllyauth['Authority'];
+
+$adminauth = $sqllyauth['Authority'] ?? 0;
 if($adminauth > 100) { 
 
   echo "<h2>Logged GM Actions</h2>
 
 		<p>This gives an overview of the last five actions carried out by game masters. A full copy of the log can be viewed from the appropriate menu item or following the link below.</p>
 
-		<div style='text-align: right;'><a href='gmlog.php'>&raquo; View ALL Logs</a></div>
+		<div style='text-align: right;'><a href='#'>&raquo; View ALL Logs</a></div>
 
-		<table width='110% cellspacing='1'>
+		<table width='100%' cellspacing='1'>
 		<thead>
 		<tr>
 			<th>GM Login</th>
@@ -149,17 +166,21 @@ if($adminauth > 100) {
 		</tr>
 		</thead>
 		<tbody>";
-    $sqlgbl = mysql_query("SELECT * FROM gmlog");
-    while($sqllybl = mysql_fetch_assoc($sqlgbl))
-    {
-    echo '<tr class="row2">
-
-				<td><a style="color: #AA0000;" class="username-coloured">'.$sqllybl["Username"].'</a></td>
-				<td style="text-align: center;">'.$sqllybl["IP"].'</td>
-			  <td style="text-align: center;">'.$sqllybl["Time"].'</td>
-				<td><strong>'.$sqllybl["Action"].'</strong></td>
-			</tr>';
-		 }
+    // Verificar se a tabela gmlog existe
+    $sqlgbl = @mysql_query("SELECT * FROM gmlog ORDER BY Time DESC LIMIT 5");
+    if ($sqlgbl && mysql_num_rows($sqlgbl) > 0) {
+        while($sqllybl = mysql_fetch_assoc($sqlgbl))
+        {
+            echo '<tr class="row2">
+                <td><a style="color: #AA0000;" class="username-coloured">'.htmlspecialchars($sqllybl["Username"] ?? 'N/A').'</a></td>
+                <td style="text-align: center;">'.htmlspecialchars($sqllybl["IP"] ?? 'N/A').'</td>
+                <td style="text-align: center;">'.htmlspecialchars($sqllybl["Time"] ?? 'N/A').'</td>
+                <td><strong>'.htmlspecialchars($sqllybl["Action"] ?? 'N/A').'</strong></td>
+            </tr>';
+        }
+    } else {
+        echo '<tr class="row2"><td colspan="4" style="text-align: center;">No GM logs available.</td></tr>';
+    }
 		echo '</tbody>
 
 		</table>
@@ -174,4 +195,4 @@ if($adminauth > 100) {
 
 		</div>
 	</div>
-<?PHP include("footer.php");
+<?php include("footer.php");

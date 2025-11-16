@@ -260,6 +260,25 @@ if (!isset($base_path)) {
         </div>
     </div>
     
+    <!-- Modal de Informações de Registro -->
+    <div class="confirm-modal" id="registrationInfoModal">
+        <div class="confirm-modal-content" style="max-width: 500px;">
+            <div class="confirm-modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h3 style="color: white; margin: 0;">
+                    <i class="fas fa-check-circle"></i> Conta Criada com Sucesso!
+                </h3>
+            </div>
+            <div class="confirm-modal-body" id="registrationInfoContent">
+                <!-- Conteúdo será preenchido via JavaScript -->
+            </div>
+            <div class="confirm-modal-footer">
+                <button class="btn btn-primary" id="registrationInfoOk" onclick="closeRegistrationInfoModal()" style="width: 100%;">
+                    <i class="fas fa-check"></i> Entendi
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Modal de Alerta (apenas mensagem) -->
     <div class="alert-modal" id="alertModal">
         <div class="alert-modal-content">

@@ -311,6 +311,28 @@ include 'includes/header.php';
                 </div>
             </div>
         </div>
+        
+        <!-- Resgatar Token -->
+        <div class="dashboard-section">
+            <h2 class="section-title"><i class="fas fa-gift"></i> Resgatar Token</h2>
+            <div style="padding: 1.5rem; background: var(--bg-white); border-radius: 12px; box-shadow: var(--shadow-md); border: 1px solid var(--border-color);">
+                <form id="redeemTokenForm" style="display: flex; gap: 1rem; align-items: flex-end;">
+                    <div style="flex: 1;">
+                        <label for="token_code" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">
+                            Código do Token:
+                        </label>
+                        <input type="text" id="token_code" name="token_code" required 
+                               placeholder="Digite o código do token"
+                               style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; font-family: monospace; text-transform: uppercase;"
+                               maxlength="32">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; white-space: nowrap;">
+                        <i class="fas fa-key"></i> Resgatar
+                    </button>
+                </form>
+                <div id="tokenRedeemAlert" style="margin-top: 1rem; display: none;"></div>
+            </div>
+        </div>
     </div>
 </main>
 

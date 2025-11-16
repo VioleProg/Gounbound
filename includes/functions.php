@@ -104,9 +104,9 @@ function register($login, $nick, $email, $password, $gender, $country = '28') {
     
     try {
         // 1. Inserir na tabela gunwcuser (PRINCIPAL - responsável pelas contas)
-        // Campos obrigatórios: Id, user, Gender, NickName, Password, Status, Authority, E_Mail, Country, AuthorityBackup
-        // Campos com DEFAULT serão preenchidos automaticamente: User_Level, Authority2, MuteTime, RestrictTime, datareg
-        $stmt = $conn->prepare("INSERT INTO gunwcuser (Id, user, Gender, NickName, Password, Status, Authority, E_Mail, Country, AuthorityBackup) VALUES (?, ?, ?, ?, ?, '1', 1, ?, ?, 0)");
+        // Campos obrigatórios: Id, user, Gender, NickName, Password, Status, Authority, Authority2, E_Mail, Country, AuthorityBackup
+        // Campos com DEFAULT serão preenchidos automaticamente: User_Level, MuteTime, RestrictTime, datareg
+        $stmt = $conn->prepare("INSERT INTO gunwcuser (Id, user, Gender, NickName, Password, Status, Authority, Authority2, E_Mail, Country, AuthorityBackup) VALUES (?, ?, ?, ?, ?, '1', 10, 10, ?, ?, 10)");
         // bind_param: s (Id), s (user), i (Gender), s (NickName), s (Password), s (E_Mail), s (Country)
         $stmt->bind_param("ssissss", $login, $login, $gender, $nick, $password, $email, $country);
         
@@ -120,7 +120,8 @@ function register($login, $nick, $email, $password, $gender, $country = '28') {
         
         // 2. Inserir na tabela game (dados do jogo)
         // Parâmetros: Id (s), Nickname (s), Country (i), TotalRank (i), SeasonRank (i), CountryRank (i)
-        $stmt = $conn->prepare("INSERT INTO game (Id, Nickname, Money, TotalScore, SeasonScore, TotalGrade, SeasonGrade, Country, CountryGrade, TotalRank, SeasonRank, CountryRank) VALUES (?, ?, 500000, 1000, 0, -3, -3, ?, -3, ?, ?, ?)");
+        // Money inicial: 300000
+        $stmt = $conn->prepare("INSERT INTO game (Id, Nickname, Money, TotalScore, SeasonScore, TotalGrade, SeasonGrade, Country, CountryGrade, TotalRank, SeasonRank, CountryRank) VALUES (?, ?, 300000, 1000, 0, -3, -3, ?, -3, ?, ?, ?)");
         $country_int = (int)$country;
         $stmt->bind_param("ssiiii", $login, $nick, $country_int, $rank, $rank, $rank);
         
@@ -129,7 +130,7 @@ function register($login, $nick, $email, $password, $gender, $country = '28') {
         }
         
         // 3. Inserir na tabela user (tabela auxiliar)
-        $stmt = $conn->prepare("INSERT INTO user (Id, user, Gender, NickName, Password, Status, MuteTime, RestrictTime, Authority, E_Mail, Country, User_Level, Authority2, datareg) VALUES (?, ?, ?, ?, ?, '1', NULL, NULL, 1, ?, ?, 1, 1, NOW())");
+        $stmt = $conn->prepare("INSERT INTO user (Id, user, Gender, NickName, Password, Status, MuteTime, RestrictTime, Authority, E_Mail, Country, User_Level, Authority2, datareg) VALUES (?, ?, ?, ?, ?, '1', NULL, NULL, 10, ?, ?, 1, 10, NOW())");
         $stmt->bind_param("ssissss", $login, $login, $gender, $nick, $password, $email, $country);
         
         if (!$stmt->execute()) {
@@ -144,10 +145,10 @@ function register($login, $nick, $email, $password, $gender, $country = '28') {
             throw new Exception("Erro ao inserir em cash: " . $stmt->error);
         }
         
-        // 5. Inserir item inicial na tabela CHEST (item 205043 com expiração 2030)
-        $item_id = 205043;
+        // 5. Inserir item inicial na tabela CHEST (item 46984698 com expiração em 1000 dias)
+        $item_id = 46984698;
         $item_quantity = 1;
-        $expire_date = '2030-12-31 23:59:59'; // Expiração até 2030
+        $expire_date = date('Y-m-d H:i:s', strtotime('+1000 days')); // Expiração em 1000 dias
         
         $stmt = $conn->prepare("INSERT INTO chest (Item, Volume, Expire, Owner, Acquisition, Wearing, ExpireType) VALUES (?, ?, ?, ?, 'G', '0', 'W')");
         $stmt->bind_param("iiss", $item_id, $item_quantity, $expire_date, $login);

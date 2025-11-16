@@ -1,255 +1,75 @@
-<?PHP 
-session_start(); 
-include("verify.php"); 
+<?php
+include("verify.php"); // verify.php já inclui mesh.php
+include("../includes/rank_functions.php");
+
+$user_id = $_SESSION['user_id'] ?? $_SESSION['user'] ?? '';
+
+// Buscar dados em game (para rank/grade)
+$sql_game = mysql_query("SELECT TotalGrade, Nickname FROM game WHERE Id='".mysql_real_escape_string($user_id)."'");
+$sqlly_game = mysql_fetch_assoc($sql_game);
+
+// Buscar nickname e Authority em gunwcuser (tabela principal)
+$sql_gunwc = mysql_query("SELECT NickName, Authority FROM gunwcuser WHERE Id='".mysql_real_escape_string($user_id)."'");
+$sqlly_gunwc = mysql_fetch_assoc($sql_gunwc);
+
+$grade = $sqlly_game['TotalGrade'] ?? '-4';
+$username = $sqlly_game['Nickname'] ?? $sqlly_gunwc['NickName'] ?? $user_id;
+$current_authority = (int)($sqlly_gunwc['Authority'] ?? 0);
+$is_gm = ($current_authority == 99);
+
+// Usar a função getRankImageName para obter o nome correto da imagem
+$rank_image_name = getRankImageName($grade);
+$rank_image = "../Assets/rank/".$rank_image_name;
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-gb" xml:lang="en-gb">
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
-
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta http-equiv="Content-Style-Type" content="text/css" />
-<meta http-equiv="Content-Language" content="en-gb" />
-<meta http-equiv="imagetoolbar" content="no" />
-
-<title>.::GunBound Omega::. - Staff Control Panel</title>
-
-<link href="style/admin.css" rel="stylesheet" type="text/css" media="screen" />
-
-<script type="text/javascript">
-// <![CDATA[
-var jump_page = 'Enter the page number you wish to go to:';
-var on_page = '';
-var per_page = '';
-var base_url = '';
-
-var menu_state = 'shown';
-
-
-/**
-* Jump to page
-*/
-function jumpto()
-{
-	var page = prompt(jump_page, on_page);
-
-	if (page !== null && !isNaN(page) && page == Math.floor(page) && page > 0)
-	{
-		if (base_url.indexOf('?') == -1)
-		{
-			document.location.href = base_url + '?start=' + ((page - 1) * per_page);
-		}
-		else
-		{
-			document.location.href = base_url.replace(/&amp;/g, '&') + '&start=' + ((page - 1) * per_page);
-		}
-	}
-}
-
-/**
-* Set display of page element
-* s[-1,0,1] = hide,toggle display,show
-*/
-function dE(n, s, type)
-{
-	if (!type)
-	{
-		type = 'block';
-	}
-
-	var e = document.getElementById(n);
-	if (!s)
-	{
-		s = (e.style.display == '') ? -1 : 1;
-	}
-	e.style.display = (s == 1) ? type : 'none';
-}
-
-/**
-* Mark/unmark checkboxes
-* id = ID of parent container, name = name prefix, state = state [true/false]
-*/
-function marklist(id, name, state)
-{
-	var parent = document.getElementById(id);
-	if (!parent)
-	{
-		eval('parent = document.' + id);
-	}
-
-	if (!parent)
-	{
-		return;
-	}
-
-	var rb = parent.getElementsByTagName('input');
-	
-	for (var r = 0; r < rb.length; r++)
-	{
-		if (rb[r].name.substr(0, name.length) == name)
-		{
-			rb[r].checked = state;
-		}
-	}
-}
-
-/**
-* Find a member
-*/
-function find_username(url)
-{
-	popup(url, 760, 570, '_usersearch');
-	return false;
-}
-
-/**
-* Window popup
-*/
-function popup(url, width, height, name)
-{
-	if (!name)
-	{
-		name = '_popup';
-	}
-
-	window.open(url.replace(/&amp;/g, '&'), name, 'height=' + height + ',resizable=yes,scrollbars=yes, width=' + width);
-	return false;
-}
-
-/**
-* Hiding/Showing the side menu
-*/
-function switch_menu()
-{
-	var menu = document.getElementById('menu');
-	var main = document.getElementById('main');
-	var toggle = document.getElementById('toggle');
-	var handle = document.getElementById('toggle-handle');
-
-	switch (menu_state)
-	{
-		// hide
-		case 'shown':
-			main.style.width = '93%';
-			menu_state = 'hidden';
-			menu.style.display = 'none';
-			toggle.style.width = '20px';
-			handle.style.backgroundImage = 'url(images/toggle.gif)';
-			handle.style.backgroundRepeat = 'no-repeat';
-
-			
-				handle.style.backgroundPosition = '100% 50%';
-				toggle.style.left = '0';
-			
-		break;
-
-		// show
-		case 'hidden':
-			main.style.width = '76%';
-			menu_state = 'shown';
-			menu.style.display = 'block';
-			toggle.style.width = '5%';
-			handle.style.backgroundImage = 'url(images/toggle.gif)';
-			handle.style.backgroundRepeat = 'no-repeat';
-
-			
-				handle.style.backgroundPosition = '0% 50%';
-				toggle.style.left = '15%';
-			
-		break;
-	}
-}
-
-// ]]>
-
-</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - GunBound Omega</title>
+    <link rel="stylesheet" href="../Assets/css/style.css">
+    <link rel="stylesheet" href="style/admin_modern.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-
 <body class="ltr">
-
 <div id="wrap">
-	<div id="page-header">
-		<h1>GunBound Omega Staff Control Panel</h1>
-		<p><a href="index.php">CP index</a> &bull; <a href="../">GunBound index</a></p>
+    <div id="page-header">
+        <h1><i class="fas fa-shield-alt"></i> Painel Administrativo</h1>
+        <p>
+            <a href="admin_panel.php"><i class="fas fa-home"></i> Painel</a>
+            <a href="../"><i class="fas fa-globe"></i> Site</a>
+            <a href="../logout.php"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </p>
+    </div>
+    
+    <div id="page-body">
+        <div id="tabs">
+            <ul>
+                <li id="activetab"><a href="admin_panel.php"><span>Painel Administrativo</span></a></li>
+            </ul>
+        </div>
 
-		<p id="skip"><a href="#acp">Skip to content</a></p>
+        <div id="acp">
+            <div class="panel">
+                <div id="content">
+                    <div id="toggle">
+                        <a id="toggle-handle" accesskey="m" title="Ocultar ou exibir o menu lateral" onclick="switch_menu(); return false;" href="#"></a>
+                    </div>
+                    
+                    <div id="menu">
+                        <p>
+                            <strong>
+                                <img src="<?php echo htmlspecialchars($rank_image); ?>" alt="Rank" style="width: 24px; height: 24px; vertical-align: middle; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);" />
+                                <?php echo htmlspecialchars($username); ?>
+                            </strong>
+                            <a href="../logout.php">Sair</a>
+                        </p>
 
-	</div>
- <div id="page-body">
-		<div id="tabs">
-			<ul>
-			
-				<li id="activetab"><a href="index.php"><span>Dashboard</span></a></li>
-			
-				<li id="activetab"><a href="#"><span>Server</span></a></li>
-		
-				<li id="activetab"><a href="#"><span>Site & Content</span></a></li>
- 
-				<li id="activetab"><a href="user.php"><span>Search Account</span></a></li>
-			
-
-			</ul>
-
-		</div>
-
-		<div id="acp">
-
-		<div class="panel">
-			<span class="corners-top"><span></span></span>
-				<div id="content">
-					 
-					<div id="toggle">
-						<a id="toggle-handle" accesskey="m" title="Hide or display the side menu" onclick="switch_menu(); return false;" href="#"></a></div>
-					
-					<div id="menu">
-
-						<p>You are logged in as:<br />
-			 <?PHP 
-       $sql = mysql_query("SELECT * FROM game WHERE ID='".$_SESSION['user']."'");
-       $sqlly = mysql_fetch_assoc($sql);
-       $grade = $sqlly['TotalGrade'];
-       
-      
-						echo "&nbsp;&nbsp;<strong><img src='../images/v2/arcade/gunbound/levels/s/".$grade.".png' alt='Administrator' /> ".$_SESSION['user']."</strong>"; ?>                                                
-            [&nbsp;<a href="http://gbomega.com/?action=logout">Logout</a>&nbsp;]</p>
-
-						<ul>
-							<li class="header">Game Master Navigation</li>
-							
-								<li><a href="gmshop.php"><span>GM Avatar Shop</span></a></li>
-								<li><a href="buylog.php"><span>View Purchase Log</span></a></li>
-								<li><a href="sell.php"><span>View Sell/Delete Log</span></a></li>
-								<li><a href="giftlog.php"><span>View Gift Log</span></a></li>
-								<li><a href="gamelog.php"><span>View Game Log</span></a></li>
-								<li><a href="user.php"><span>Search for Account</span></a></li>
-								<li><a href="batchpw.php"><span>Batch Password Check</span></a></li>
-								<li><a href="#"><span>Support Ticket Centre CP</span></a></li>
-								<li><a href="#"><span>Mute Log</span></a></li>
-								<li><a href="#"><span>Invetory Options</span></a></li>
-								<li><a href="#"><span>Guild Management</span></a></li>
-								<li><a href="#"><span>Dropped Users</span></a></li>
-								<li><a href="#"><span>Login Logs</span></a></li>
-								<li><a href="ban.php"><span>Ban & Suspension</span></a></li>
-								<li><a href="#"><span>News & Events</span></a></li>
-              <?PHP
-              $sql = mysql_query("SELECT * FROM game WHERE Id='".$_SESSION['user']."'");
-              $sqlly = mysql_fetch_assoc($sql);
-              $authority = $sqlly['Authority'];
-              if($authority >= 100)
-              {
-              echo '
-              <li class="header">Administrator Navigation</li>
-              <li><a href="#"><span>List Of Authority Accounts</span></a></li>
-              <li><a href="#"><span>GM Log</span></a></li>
-              <li><a href="#"><span>Reset User Account</span></a></li>
-              <li><a href="#"><span>Add User As GM</span></a></li>
-              <li><a href="#"><span>Update Game Manually</span></a></li>
-              
-              
-              ';              
-              }
-              
-              ?>
-								
-
-						</ul>
-					</div>
+                        <ul>
+                            <li class="header">Menu Principal</li>
+                            <li><a href="admin_panel.php"><span><i class="fas fa-home"></i> Painel Administrativo</span></a></li>
+                        </ul>
+                    </div>
+                    
+                    <div id="main">

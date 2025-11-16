@@ -33,7 +33,7 @@ if (strpos(__DIR__, '/admin') !== false || strpos(__DIR__, '\\admin') !== false)
                                 <li><a href="<?php echo $base_path; ?>dashboard.php" class="nav-link"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a></li>
                                 <li><a href="<?php echo $base_path; ?>profile.php" class="nav-link"><i class="fas fa-user"></i> <span>Perfil</span></a></li>
                                 <?php if (isAdmin()): ?>
-                                    <li><a href="<?php echo $base_path; ?>admin/index.php" class="nav-link admin-link"><i class="fas fa-shield-alt"></i> <span>Admin</span></a></li>
+                                    <li><a href="<?php echo $base_path; ?>paineladmin" class="nav-link admin-link"><i class="fas fa-shield-alt"></i> <span>Admin</span></a></li>
                                 <?php endif; ?>
                                 <li><a href="<?php echo $base_path; ?>logout.php" class="nav-link logout-link"><i class="fas fa-sign-out-alt"></i> <span>Sair</span></a></li>
                             <?php else: ?>

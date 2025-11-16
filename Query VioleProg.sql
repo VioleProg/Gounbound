@@ -1,9 +1,9 @@
--- Essa buceta tem limite de 100 caracteres por mensagem
-
+-- Configuração de charset
 SET NAMES 'utf8mb4';
 SET CHARACTER SET utf8mb4;
 
-CREATE TABLE `tweets` (
+-- Criar tabela de tweets
+CREATE TABLE IF NOT EXISTS `tweets` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `user_id` VARCHAR(16) NOT NULL,
     `nickname` VARCHAR(16) NOT NULL,
@@ -16,24 +16,13 @@ CREATE TABLE `tweets` (
 DEFAULT CHARACTER SET utf8mb4 
 COLLATE utf8mb4_general_ci;
 
+-- Garantir charset nas colunas
 ALTER TABLE `tweets` 
-    MODIFY `user_id` VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-    MODIFY `nickname` VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-    MODIFY `message` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;
+    MODIFY `user_id`   VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+    MODIFY `nickname`  VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+    MODIFY `message`   VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;
 
-SELECT 
-    TABLE_COLLATION,
-    CCSA.character_set_name as CHARSET
-FROM information_schema.TABLES T
-JOIN information_schema.COLLATION_CHARACTER_SET_APPLICABILITY CCSA 
-    ON CCSA.collation_name = T.table_collation
-WHERE T.table_schema = DATABASE() 
-    AND T.table_name = 'tweets';
-
-    GO;
-
-
-    -- Criar tabela para log de mutes do chat
+-- Criar tabela de logs de mute
 CREATE TABLE IF NOT EXISTS `mute_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
@@ -49,19 +38,16 @@ CREATE TABLE IF NOT EXISTS `mute_log` (
   KEY `mute_time` (`mute_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
+-- Adicionar colunas muted_until e is_muted se não existirem
 SET @dbname = DATABASE();
 SET @tablename = 'tweets';
 SET @columnname1 = 'muted_until';
 SET @columnname2 = 'is_muted';
+
+-- muted_until
 SET @preparedStatement = (SELECT IF(
-  (
-    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE
-      (table_name = @tablename)
-      AND (table_schema = @dbname)
-      AND (column_name = @columnname1)
-  ) > 0,
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS 
+   WHERE table_schema=@dbname AND table_name=@tablename AND column_name=@columnname1) > 0,
   'SELECT 1',
   CONCAT('ALTER TABLE ', @tablename, ' ADD COLUMN ', @columnname1, ' datetime DEFAULT NULL')
 ));
@@ -69,14 +55,10 @@ PREPARE alterIfNotExists FROM @preparedStatement;
 EXECUTE alterIfNotExists;
 DEALLOCATE PREPARE alterIfNotExists;
 
+-- is_muted
 SET @preparedStatement = (SELECT IF(
-  (
-    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE
-      (table_name = @tablename)
-      AND (table_schema = @dbname)
-      AND (column_name = @columnname2)
-  ) > 0,
+  (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS 
+   WHERE table_schema=@dbname AND table_name=@tablename AND column_name=@columnname2) > 0,
   'SELECT 1',
   CONCAT('ALTER TABLE ', @tablename, ' ADD COLUMN ', @columnname2, ' tinyint(1) DEFAULT 0')
 ));
@@ -84,16 +66,14 @@ PREPARE alterIfNotExists FROM @preparedStatement;
 EXECUTE alterIfNotExists;
 DEALLOCATE PREPARE alterIfNotExists;
 
-    GO;
-
-    -- Criar tabela de tokens
+-- Criar tabela de tokens
 CREATE TABLE IF NOT EXISTS `tokens` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `token_code` VARCHAR(32) NOT NULL UNIQUE,
     `type` ENUM('cash', 'gold', 'avatar', 'item') NOT NULL,
     `item_id` INT NULL,
     `quantity` INT NOT NULL DEFAULT 1,
-    `expire_days` INT NULL COMMENT 'Dias até o item expirar (apenas para avatar/item)',
+    `expire_days` INT NULL COMMENT 'Dias até o item expirar (apenas avatar/item)',
     `uses_left` INT NOT NULL DEFAULT 1,
     `expires_at` DATETIME NULL COMMENT 'Data de expiração do token',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -104,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `tokens` (
     INDEX `idx_expires_at` (`expires_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Criar tabela de logs de tokens
+-- Tabela de logs de tokens
 CREATE TABLE IF NOT EXISTS `token_logs` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `token_id` INT NOT NULL,
@@ -118,4 +98,3 @@ CREATE TABLE IF NOT EXISTS `token_logs` (
     INDEX `idx_redeemed_at` (`redeemed_at`),
     FOREIGN KEY (`token_id`) REFERENCES `tokens`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-

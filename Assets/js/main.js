@@ -613,24 +613,21 @@ function handleRegister() {
     })
     .then(data => {
         if (data.success) {
-            // Exibir mensagem com número da conta
-            let message = data.message || 'Conta criada com sucesso!';
-            if (data.user_number) {
-                message = 'Você é o número ' + data.user_number + '! Conta criada com sucesso!';
-            }
-            showAlert(alertDiv, message, 'success');
-            
-            // Se houver redirect, redirecionar após 2 segundos
-            if (data.redirect) {
-                setTimeout(() => {
-                    const redirectPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + data.redirect;
-                    window.location.href = redirectPath;
-                }, 2000);
+            // Exibir popup com informações do registro
+            if (data.registration_info) {
+                showRegistrationInfoModal(data.registration_info, data.user_number);
             } else {
-                // Se não houver redirect, apenas reabilitar o botão
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Criar Conta';
+                // Fallback caso não tenha informações
+                let message = data.message || 'Conta criada com sucesso!';
+                if (data.user_number) {
+                    message = 'Você é o número ' + data.user_number + '! Conta criada com sucesso!';
+                }
+                showAlert(alertDiv, message, 'success');
             }
+            
+            // Se houver redirect, redirecionar após fechar o modal (não mais após 2 segundos)
+            // O redirecionamento será feito quando o usuário fechar o modal
+            window.registrationRedirect = data.redirect;
         } else {
             showAlert(alertDiv, data.message || 'Erro ao criar conta. Tente novamente.', 'error');
             submitBtn.disabled = false;
@@ -962,16 +959,170 @@ function closeAlertModal() {
     modal.style.display = 'none';
 }
 
+// Token Redemption
+document.addEventListener('DOMContentLoaded', function() {
+    const redeemTokenForm = document.getElementById('redeemTokenForm');
+    if (redeemTokenForm) {
+        redeemTokenForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const tokenCode = document.getElementById('token_code').value.trim().toUpperCase();
+            const alertDiv = document.getElementById('tokenRedeemAlert');
+            const submitBtn = redeemTokenForm.querySelector('button[type="submit"]');
+            
+            if (!tokenCode) {
+                showTokenAlert(alertDiv, 'Digite o código do token', 'error');
+                return;
+            }
+            
+            // Desabilitar botão
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+            
+            const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/redeem_token.php';
+            const formData = new FormData();
+            formData.append('token_code', tokenCode);
+            
+            fetch(apiPath, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                
+                if (data.success) {
+                    showTokenAlert(alertDiv, data.message, 'success');
+                    redeemTokenForm.reset();
+                    // Recarregar página após 2 segundos para atualizar dados
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showTokenAlert(alertDiv, data.message || 'Erro ao resgatar token', 'error');
+                }
+            })
+            .catch(error => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                showTokenAlert(alertDiv, 'Erro ao resgatar token: ' + error.message, 'error');
+            });
+        });
+    }
+});
+
+function showTokenAlert(alertDiv, message, type) {
+    if (!alertDiv) return;
+    
+    alertDiv.className = 'alert alert-' + type;
+    alertDiv.innerHTML = '<i class="fas fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i> ' + message;
+    alertDiv.style.display = 'block';
+    
+    setTimeout(() => {
+        alertDiv.style.display = 'none';
+    }, 5000);
+}
+
+// Função para exibir modal de informações de registro
+function showRegistrationInfoModal(registrationInfo, userNumber) {
+    const modal = document.getElementById('registrationInfoModal');
+    const content = document.getElementById('registrationInfoContent');
+    
+    if (!modal || !content) return;
+    
+    // Formatar valores
+    const cashFormatted = registrationInfo.cash.toLocaleString('pt-BR');
+    const moneyFormatted = registrationInfo.money.toLocaleString('pt-BR');
+    
+    // Criar HTML com as informações
+    let html = '<div style="text-align: left;">';
+    
+    if (userNumber) {
+        html += `<div style="background: #e8f5e9; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;">`;
+        html += `<h4 style="margin: 0; color: #2e7d32; font-size: 1.2rem;">`;
+        html += `<i class="fas fa-star" style="color: #ffd700;"></i> Você é o número <strong>#${userNumber}</strong>!`;
+        html += `</h4></div>`;
+    }
+    
+    html += '<div style="margin-bottom: 1rem;">';
+    html += '<h4 style="color: #333; margin-bottom: 0.75rem; font-size: 1.1rem;"><i class="fas fa-user"></i> Informações da Conta</h4>';
+    html += '<div style="background: #f5f5f5; padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem;">';
+    html += `<strong>Login:</strong> <span style="color: #667eea;">${escapeHtml(registrationInfo.login)}</span>`;
+    html += '</div>';
+    html += '<div style="background: #f5f5f5; padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem;">';
+    html += `<strong>Nickname:</strong> <span style="color: #667eea;">${escapeHtml(registrationInfo.nick)}</span>`;
+    html += '</div>';
+    html += '<div style="background: #f5f5f5; padding: 0.75rem; border-radius: 6px;">';
+    html += `<strong>Email:</strong> <span style="color: #667eea;">${escapeHtml(registrationInfo.email)}</span>`;
+    html += '</div>';
+    html += '</div>';
+    
+    html += '<div style="margin-bottom: 1rem;">';
+    html += '<h4 style="color: #333; margin-bottom: 0.75rem; font-size: 1.1rem;"><i class="fas fa-coins"></i> Recursos Recebidos</h4>';
+    html += '<div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;">';
+    html += `<div style="display: flex; justify-content: space-between; align-items: center;">`;
+    html += `<span><i class="fas fa-dollar-sign"></i> <strong>Cash:</strong></span>`;
+    html += `<span style="font-size: 1.2rem; font-weight: bold;">${cashFormatted}</span>`;
+    html += `</div></div>`;
+    html += '<div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 1rem; border-radius: 8px;">';
+    html += `<div style="display: flex; justify-content: space-between; align-items: center;">`;
+    html += `<span><i class="fas fa-coins"></i> <strong>Gold:</strong></span>`;
+    html += `<span style="font-size: 1.2rem; font-weight: bold;">${moneyFormatted}</span>`;
+    html += `</div></div>`;
+    html += '</div>';
+    
+    html += '<div>';
+    html += '<h4 style="color: #333; margin-bottom: 0.75rem; font-size: 1.1rem;"><i class="fas fa-gift"></i> Item de Boas-Vindas</h4>';
+    html += '<div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 1rem; border-radius: 8px;">';
+    html += `<div style="text-align: center;">`;
+    html += `<div style="font-size: 1.1rem; margin-bottom: 0.5rem;"><strong>${escapeHtml(registrationInfo.item_name)}</strong></div>`;
+    html += `<div style="font-size: 0.9rem; opacity: 0.9;"><i class="fas fa-clock"></i> Expira em ${registrationInfo.item_expire_days} dias</div>`;
+    html += `</div></div>`;
+    html += '</div>';
+    
+    html += '</div>';
+    
+    content.innerHTML = html;
+    modal.style.display = 'flex';
+}
+
+function closeRegistrationInfoModal() {
+    const modal = document.getElementById('registrationInfoModal');
+    if (modal) {
+        modal.style.display = 'none';
+        
+        // Redirecionar se houver um redirect definido
+        if (window.registrationRedirect) {
+            const redirectPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + window.registrationRedirect;
+            window.location.href = redirectPath;
+            window.registrationRedirect = null;
+        }
+    }
+}
+
+// Função auxiliar para escapar HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Fechar modais ao clicar fora
 document.addEventListener('click', function(event) {
     const confirmModal = document.getElementById('confirmModal');
     const alertModal = document.getElementById('alertModal');
+    const registrationInfoModal = document.getElementById('registrationInfoModal');
     
     if (event.target === confirmModal) {
         closeConfirmModal(false);
     }
     if (event.target === alertModal) {
         closeAlertModal();
+    }
+    if (event.target === registrationInfoModal) {
+        closeRegistrationInfoModal();
     }
 });
 
@@ -1347,7 +1498,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Restaurar botão IMEDIATAMENTE
                         restoreButton();
                         
-                        // Não mostrar mensagem de sucesso
+                        // Mostrar mensagem informando que cash foi deduzido
+                        if (data.cash_remaining !== undefined) {
+                            showTweetAlert(`Mensagem enviada! Cash restante: ${data.cash_remaining.toLocaleString('pt-BR')}`, 'success');
+                        }
+                        
                         tweetForm.reset();
                         if (charCount) {
                             charCount.textContent = '0';

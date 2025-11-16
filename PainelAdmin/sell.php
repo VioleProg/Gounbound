@@ -1,33 +1,33 @@
 <?php
-session_start();
-$user = $_SESSION['user'];
+// verify.php já é incluído em header.php
 include('header.php');
-include("verify.php");
-require_once ( "../mesh.php" );
+require_once("../mesh.php");
 ?>
-		
 
 <a name='maincontent'></a>
-<?PHP
-if(mysql_real_escape_string($_GET["Id"])){
-$search = "WHERE `Id`='".mysql_real_escape_string($_GET["Id"])."'"; }
-$page = mysql_real_escape_string($_GET["page"]) * 50;
-$pagination = mysql_real_escape_string($_GET["page"]);
-$next = $pagination + 1;
-$prev = $pagination - 1;
-echo "<table width='79%'>";
-echo "<h2><font color='#adadad'>Sold/Deleted Avatars</font></h2>";
-echo "<a href='?Id={$_GET["Id"]}&page=$prev'>Previous Page</a> || <a href='?Id={$_GET["Id"]}&page=$next'>Next Page</a> || <a href='sell.php'>Sell Log Index</a>";
-echo "<br /><form method=get>Search by LOGIN ID: <input name=Id><input type=submit></form>";
-                  
+<?php
+$search = "";
+if(isset($_GET["Id"]) && !empty($_GET["Id"])){
+    $search = "WHERE `Id`='".mysql_real_escape_string($_GET["Id"])."'"; 
+}
+$page = isset($_GET["page"]) ? (int)$_GET["page"] : 0;
+$page_offset = $page * 50;
+$next = $page + 1;
+$prev = max(0, $page - 1);
+$id_param = isset($_GET["Id"]) ? htmlspecialchars($_GET["Id"]) : '';
 
-                  $getSell = mysql_query("SELECT * FROM `receiptconsume` $search ORDER BY `Time`  DESC LIMIT $page,50");
-                    echo "<tr>";
-                    echo "
-                    <th>Id:</th>
-                    <th>Time:</th>
+echo "<table width='79%'>";
+echo "<h2><font color='#adadad'>Avatares Vendidos/Deletados</font></h2>";
+echo "<a href='?Id=$id_param&page=$prev'>Página Anterior</a> || <a href='?Id=$id_param&page=$next'>Próxima Página</a> || <a href='sell.php'>Índice do Log de Vendas</a>";
+echo "<br /><form method=get>Pesquisar por ID de LOGIN: <input name=Id value='$id_param'><input type=submit value='Pesquisar'></form>";
+
+$getSell = mysql_query("SELECT * FROM `receiptconsume` $search ORDER BY `Time`  DESC LIMIT $page_offset,50");
+echo "<tr>";
+echo "
+                    <th>ID:</th>
+                    <th>Hora:</th>
                     <th>Avatar:</th>
-                    <th>Refund:</th>
+                    <th>Reembolso:</th>
                     </tr>";
 
              while($rowSell = mysql_fetch_array( $getSell ))

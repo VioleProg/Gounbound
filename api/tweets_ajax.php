@@ -26,6 +26,22 @@ if ($action === 'send') {
         exit;
     }
     
+    // Verificar se o usuário está bloqueado do chat
+    $stmt_check = $conn->prepare("SELECT Status FROM gunwcuser WHERE Id = ?");
+    $stmt_check->bind_param("s", $user_id);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    
+    if ($row_check = $result_check->fetch_assoc()) {
+        // Status = '2' significa bloqueado do chat
+        if ($row_check['Status'] == '2') {
+            $stmt_check->close();
+            echo json_encode(['success' => false, 'message' => 'Você está bloqueado do chat. Entre em contato com um administrador.']);
+            exit;
+        }
+    }
+    $stmt_check->close();
+    
     $message = trim($_POST['message'] ?? '');
     
     if (empty($message)) {
@@ -38,22 +54,68 @@ if ($action === 'send') {
         exit;
     }
     
+    // Verificar se o usuário tem cash suficiente (10000 cash por mensagem)
+    $cash_cost = 10000;
+    $stmt_cash = $conn->prepare("SELECT Cash FROM cash WHERE ID = ?");
+    $stmt_cash->bind_param("s", $user_id);
+    $stmt_cash->execute();
+    $result_cash = $stmt_cash->get_result();
+    
+    $current_cash = 0;
+    if ($row_cash = $result_cash->fetch_assoc()) {
+        $current_cash = intval($row_cash['Cash'] ?? 0);
+    }
+    $stmt_cash->close();
+    
+    if ($current_cash < $cash_cost) {
+        echo json_encode([
+            'success' => false, 
+            'message' => "Você precisa de {$cash_cost} cash para enviar uma mensagem. Você possui {$current_cash} cash."
+        ]);
+        exit;
+    }
+    
     // Buscar nickname do usuário
     $user_info = getUserInfo($user_id);
     $nickname = $user_info['Nickname'] ?? $user_info['NickName'] ?? $user_id;
     
-    // Inserir tweet
-    $stmt = $conn->prepare("INSERT INTO tweets (user_id, nickname, message) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $user_id, $nickname, $message);
+    // Iniciar transação para garantir que tanto o tweet quanto a dedução de cash aconteçam juntos
+    $conn->begin_transaction();
     
-    if ($stmt->execute()) {
+    try {
+        // Inserir tweet
+        $stmt = $conn->prepare("INSERT INTO tweets (user_id, nickname, message) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $user_id, $nickname, $message);
+        
+        if (!$stmt->execute()) {
+            throw new Exception("Erro ao inserir tweet: " . $stmt->error);
+        }
         $stmt->close();
-        echo json_encode(['success' => true, 'message' => 'Tweet enviado com sucesso!']);
+        
+        // Deduzir cash do usuário
+        $new_cash = $current_cash - $cash_cost;
+        $stmt_update = $conn->prepare("UPDATE cash SET Cash = ? WHERE ID = ?");
+        $stmt_update->bind_param("is", $new_cash, $user_id);
+        
+        if (!$stmt_update->execute()) {
+            throw new Exception("Erro ao deduzir cash: " . $stmt_update->error);
+        }
+        $stmt_update->close();
+        
+        // Commit da transação
+        $conn->commit();
+        
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Tweet enviado com sucesso!',
+            'cash_remaining' => $new_cash
+        ]);
         exit;
-    } else {
-        $error_msg = $stmt->error;
-        $stmt->close();
-        echo json_encode(['success' => false, 'message' => 'Erro ao enviar tweet: ' . $error_msg]);
+        
+    } catch (Exception $e) {
+        // Rollback em caso de erro
+        $conn->rollback();
+        echo json_encode(['success' => false, 'message' => 'Erro ao enviar tweet: ' . $e->getMessage()]);
         exit;
     }
     
