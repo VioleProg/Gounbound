@@ -183,9 +183,10 @@ if (!empty($user_id)) {
                         <dd><?php echo $user_data['TotalGrade']; ?></dd>
                     </dl>
                     <p style="margin-top: 1rem;">
-                        <a href="account.php?search=<?php echo urlencode($user_data['Id']); ?>" class="button1">
-                            <i class="fas fa-edit"></i> Editar Conta Completa
-                        </a>
+                        <!-- Funcionalidade desativada -->
+                        <span class="button1" style="opacity: 0.5; cursor: not-allowed; background: #6c757d;">
+                            <i class="fas fa-ban"></i> Editar Conta Completa (Desativado)
+                        </span>
                     </p>
                 </div>
             </div>

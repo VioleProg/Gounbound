@@ -26,36 +26,68 @@ if(isset($_POST['updateacc']))
     }
     
     $search = mysql_real_escape_string($_POST['search'] ?? $_GET['search'] ?? '');
-    $ud_nick = mysql_real_escape_string($_POST['ud_nick']);
-    $ud_grade = mysql_real_escape_string($_POST['ud_grade']);
-    $ud_gold = mysql_real_escape_string($_POST['ud_gold']);
-    $ud_cash = mysql_real_escape_string($_POST['ud_cash']);
-    $ud_gp = mysql_real_escape_string($_POST['ud_gp']);
-    $ud_country = mysql_real_escape_string($_POST['ud_country']);
-    $ud_sex = mysql_real_escape_string($_POST['sex']);
-    $ud_verify = mysql_real_escape_string($_POST['email_verified']);
-    $ud_guild = mysql_real_escape_string($_POST['guild']);
+    
+    if (empty($search)) {
+        header("Location: account.php?error=" . urlencode("ID do usuário não fornecido"));
+        exit;
+    }
+    
+    $ud_nick = mysql_real_escape_string($_POST['ud_nick'] ?? '');
+    $ud_grade = mysql_real_escape_string($_POST['ud_grade'] ?? '-4');
+    $ud_gold = mysql_real_escape_string($_POST['ud_gold'] ?? '0');
+    $ud_cash = mysql_real_escape_string($_POST['ud_cash'] ?? '0');
+    $ud_gp = mysql_real_escape_string($_POST['ud_gp'] ?? '0');
+    $ud_country = mysql_real_escape_string($_POST['ud_country'] ?? '28');
+    $ud_sex = mysql_real_escape_string($_POST['sex'] ?? '0');
+    $ud_verify = mysql_real_escape_string($_POST['email_verified'] ?? '0');
+    $ud_guild = mysql_real_escape_string($_POST['guild'] ?? '');
+
+    // Verificar se o usuário existe antes de atualizar
+    $check_user = mysql_query("SELECT Id FROM game WHERE Id='$search'");
+    if (mysql_num_rows($check_user) == 0) {
+        header("Location: account.php?search=" . urlencode($search) . "&error=" . urlencode("Usuário não encontrado"));
+        exit;
+    }
 
     $updategame = mysql_query("UPDATE game SET Nickname='$ud_nick', TotalGrade='$ud_grade', Guild='$ud_guild', Country='$ud_country', CountryGrade='$ud_grade', SeasonGrade='$ud_grade', TotalScore='$ud_gp', Money='$ud_gold' WHERE Id='$search'");
     if (!$updategame) {
         // Se houver erro, redirecionar com mensagem de erro
-        header("Location: account.php?search=" . urlencode($search) . "&error=" . urlencode("Erro ao atualizar game: " . mysql_error()));
+        $error_msg = mysql_error();
+        header("Location: account.php?search=" . urlencode($search) . "&error=" . urlencode("Erro ao atualizar game: " . $error_msg));
         exit;
     }
 
-    $updategunwc = mysql_query("UPDATE gunwcuser SET NickName='$ud_nick', Gender='$ud_sex', Country='$ud_country', E_Mail_Verify='$ud_verify' WHERE Id='$search'");
-    if (!$updategunwc) {
-        header("Location: account.php?search=" . urlencode($search) . "&error=" . urlencode("Erro ao atualizar gunwcuser: " . mysql_error()));
-        exit;
+    // Verificar se existe em gunwcuser antes de atualizar
+    $check_gunwc = mysql_query("SELECT Id FROM gunwcuser WHERE Id='$search'");
+    if (mysql_num_rows($check_gunwc) > 0) {
+        $updategunwc = mysql_query("UPDATE gunwcuser SET NickName='$ud_nick', Gender='$ud_sex', Country='$ud_country', E_Mail_Verify='$ud_verify' WHERE Id='$search'");
+        if (!$updategunwc) {
+            $error_msg = mysql_error();
+            header("Location: account.php?search=" . urlencode($search) . "&error=" . urlencode("Erro ao atualizar gunwcuser: " . $error_msg));
+            exit;
+        }
     }
 
     // Tentar atualizar user também (se existir)
     @mysql_query("UPDATE user SET Gender='$ud_sex', NickName='$ud_nick', Country='$ud_country', E_Mail_Verify='$ud_verify' WHERE Id='$search'");
 
-    $updatecash = mysql_query("UPDATE cash SET Cash='$ud_cash' WHERE ID='$search'");
-    if (!$updatecash) {
-        header("Location: account.php?search=" . urlencode($search) . "&error=" . urlencode("Erro ao atualizar cash: " . mysql_error()));
-        exit;
+    // Verificar se existe em cash antes de atualizar
+    $check_cash = mysql_query("SELECT ID FROM cash WHERE ID='$search'");
+    if (mysql_num_rows($check_cash) > 0) {
+        $updatecash = mysql_query("UPDATE cash SET Cash='$ud_cash' WHERE ID='$search'");
+        if (!$updatecash) {
+            $error_msg = mysql_error();
+            header("Location: account.php?search=" . urlencode($search) . "&error=" . urlencode("Erro ao atualizar cash: " . $error_msg));
+            exit;
+        }
+    } else {
+        // Se não existir, criar registro
+        $insert_cash = mysql_query("INSERT INTO cash (ID, Cash) VALUES ('$search', '$ud_cash')");
+        if (!$insert_cash) {
+            $error_msg = mysql_error();
+            header("Location: account.php?search=" . urlencode($search) . "&error=" . urlencode("Erro ao criar registro de cash: " . $error_msg));
+            exit;
+        }
     }
 
     // Redirecionar após atualização bem-sucedida
@@ -64,10 +96,14 @@ if(isset($_POST['updateacc']))
 }
 
 // verify.php já é incluído em header.php
+// rank_functions.php também já é incluído em header.php
 include("header.php"); 
-include("../includes/rank_functions.php");
-$search = mysql_real_escape_string($_GET['search'] ?? '');
-$submit = mysql_real_escape_string($_GET['submit'] ?? '');
+
+// Verificar se search foi fornecido antes de usar mysql_real_escape_string
+$search_raw = $_GET['search'] ?? '';
+$search = !empty($search_raw) ? mysql_real_escape_string($search_raw) : '';
+$submit_raw = $_GET['submit'] ?? '';
+$submit = !empty($submit_raw) ? mysql_real_escape_string($submit_raw) : '';
 
 if (empty($search)) {
     ?>
@@ -85,7 +121,18 @@ if (empty($search)) {
 $show_scripts = true;
 
 // Verificar se usuário existe em game
-$sqle = mysql_query("SELECT Id FROM game WHERE Id='$search'");
+$sqle = @mysql_query("SELECT Id FROM game WHERE Id='$search'");
+if (!$sqle) {
+    ?>
+    <a name="maincontent"></a>
+    <div class="error-message" style="background: #f8d7da; color: #721c24; padding: 1rem; margin: 1rem 0; border: 1px solid #f5c6cb; border-radius: 8px; border-left: 4px solid #dc3545;">
+        <i class="fas fa-exclamation-circle"></i> Erro ao consultar banco de dados: <?php echo htmlspecialchars(mysql_error()); ?>
+    </div>
+    <p style="margin-top: 20px;"><a href="user.php" class="button1">Voltar</a></p>
+    <?php
+    include("footer.php");
+    exit;
+}
 $sqllye = mysql_num_rows($sqle);
 if($sqllye == 0)
 {

@@ -103,9 +103,6 @@ $total_banned = $ban_row['total'] ?? 0;
                 <a href="user.php" class="action-button">
                     <i class="fas fa-search"></i> Pesquisar Conta
                 </a>
-                <a href="account.php" class="action-button">
-                    <i class="fas fa-edit"></i> Editar Conta
-                </a>
                 <a href="ban.php" class="action-button">
                     <i class="fas fa-ban"></i> Banir Contas
                 </a>

@@ -10,7 +10,11 @@ include("header.php");
     
     <div class="admin-section" style="max-width: 600px;">
         <h2>Pesquisar Conta</h2>
-        <form id="select_user" action='account.php' method='get' style="padding: 1.5rem;">
+        <div style="padding: 1.5rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; margin-bottom: 1rem;">
+            <i class="fas fa-exclamation-triangle" style="color: #856404;"></i> 
+            <strong>A funcionalidade de editar conta está temporariamente desativada.</strong>
+        </div>
+        <form id="select_user" action='#' method='get' style="padding: 1.5rem;" onsubmit="alert('A funcionalidade de editar conta está desativada.'); return false;">
             <dl>
                 <dt><label for="username">Encontrar um membro:</label></dt>
                 <dd>
