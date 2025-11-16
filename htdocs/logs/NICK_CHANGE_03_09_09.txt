@@ -1,4 +1,0 @@
-[Thu Sep 03 2009 04:42PM] [127.0.0.1  OLD: fdsfsdfdsfsd New: fsdfdsfsdfsd]
-[Thu Sep 03 2009 04:43PM] [127.0.0.1  OLD: fsdfdsfsdfsd New: imds]
-[Thu Sep 03 2009 04:44PM] [127.0.0.1  OLD: imds New: ]
-[Thu Sep 03 2009 04:44PM] [127.0.0.1  OLD:  New: dsadsa]

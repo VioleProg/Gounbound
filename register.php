@@ -81,7 +81,7 @@ include 'includes/header.php';
             <div class="auth-card">
                 <div class="auth-header">
                     <h1>Criar Conta</h1>
-                    <p>Junte-se ao Gunbol hoje</p>
+                    <p>Junte-se ao Gunbound hoje</p>
                 </div>
                 
                 <?php if (!empty($errors)): ?>

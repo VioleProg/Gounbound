@@ -1,7 +1,0 @@
-[Fri Sep 04 2009 09:39AM] [189.47.253.216  User: owarann Moedas-G: 555555]
-[Fri Sep 04 2009 09:39AM] [189.47.253.216  User: owarann Moedas-G: 999999]
-[Fri Sep 04 2009 09:40AM] [189.47.253.216  User: owarann Moedas-G: 5000]
-[Fri Sep 04 2009 09:40AM] [189.47.253.216  User: 5000000000000 Moedas-G: ]
-[Fri Sep 04 2009 09:40AM] [189.47.253.216  User: owarann Moedas-G: 9999999999999]
-[Fri Sep 04 2009 09:41AM] [189.47.253.216  User: owarann Moedas-G: 555555555555555555555555555555555555555]
-[Fri Sep 04 2009 06:04PM] [189.47.245.143  User: owarann Moedas-G: 666666666]

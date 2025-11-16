@@ -1,4 +1,4 @@
-// Main JavaScript for Gunbol Website
+// Main JavaScript for Gunbound Website
 
 document.addEventListener('DOMContentLoaded', function() {
     // Smooth scroll for anchor links
@@ -103,12 +103,17 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(card);
     });
 
-    // Add loading state to buttons
-    const submitButtons = document.querySelectorAll('button[type="submit"], input[type="submit"]');
+    // Add loading state to buttons (excluir botão de tweets e formulários de perfil)
+    const submitButtons = document.querySelectorAll('button[type="submit"]:not(#tweetForm button):not(#editNicknameForm button):not(#editPasswordForm button):not(#editEmailForm button):not(#editAvatarForm button), input[type="submit"]:not(#tweetForm input):not(#editNicknameForm input):not(#editPasswordForm input):not(#editEmailForm input):not(#editAvatarForm input)');
     submitButtons.forEach(button => {
         button.addEventListener('click', function() {
             const form = this.closest('form');
-            if (form && form.checkValidity()) {
+            if (form && form.id !== 'tweetForm' && 
+                form.id !== 'editNicknameForm' && 
+                form.id !== 'editPasswordForm' && 
+                form.id !== 'editEmailForm' && 
+                form.id !== 'editAvatarForm' && 
+                form.checkValidity()) {
                 this.style.opacity = '0.7';
                 this.style.pointerEvents = 'none';
                 this.textContent = 'Processando...';
@@ -1082,5 +1087,304 @@ function sortAvatars() {
     });
     
     rows.forEach(row => tbody.appendChild(row));
+}
+
+// Variáveis para controlar o polling de tweets
+let tweetsPollInterval = null;
+let lastTweetId = null;
+
+// Tweets Functions
+function loadTweets() {
+    const tweetsList = document.getElementById('tweetsList');
+    if (!tweetsList) return;
+    
+    tweetsList.innerHTML = '<div class="tweet-loading">Carregando tweets...</div>';
+    
+    const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/tweets_ajax.php?action=get';
+    
+    fetch(apiPath)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro HTTP: ' + response.status);
+            }
+            return response.text();
+        })
+        .then(text => {
+            try {
+                const data = JSON.parse(text);
+                console.log('Dados recebidos:', data);
+                
+                if (data.success && Array.isArray(data.tweets)) {
+                    if (data.tweets.length === 0) {
+                        tweetsList.innerHTML = '<div class="tweet-empty">Nenhum tweet ainda. Seja o primeiro a postar!</div>';
+                        return;
+                    }
+                    
+                    tweetsList.innerHTML = data.tweets.map(tweet => {
+                        const date = new Date(tweet.created_at);
+                        const formattedDate = date.toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                        }) + ' ' + date.toLocaleTimeString('pt-BR', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        });
+                        
+                        const rankImagePath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'Assets/rank/' + (tweet.rank_image || 'Image 2.bmp');
+                        const profileImagePath = tweet.profile_image && tweet.profile_image.trim() !== '' 
+                            ? escapeHtml(tweet.profile_image) 
+                            : (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'Assets/images/default-avatar.png';
+                        
+                        return `
+                            <div class="tweet-item" data-tweet-id="${tweet.id}">
+                                <div class="tweet-avatar-section">
+                                    <div class="tweet-avatar-wrapper">
+                                        ${tweet.profile_image && tweet.profile_image.trim() !== '' 
+                                            ? `<img src="${escapeHtml(tweet.profile_image)}" alt="${escapeHtml(tweet.nickname || 'Desconhecido')}" class="tweet-avatar" onerror="this.onerror=null; this.src='${(typeof BASE_PATH !== 'undefined' ? BASE_PATH : '')}Assets/images/default-avatar.png'">`
+                                            : `<div class="tweet-avatar-placeholder">
+                                                <i class="fas fa-user"></i>
+                                            </div>`
+                                        }
+                                    </div>
+                                </div>
+                                <div class="tweet-content-section">
+                                    <div class="tweet-header">
+                                        <div class="tweet-user-info">
+                                            <span class="tweet-username">${escapeHtml(tweet.nickname || 'Desconhecido')}</span>
+                                            <img src="${rankImagePath}" alt="${escapeHtml(tweet.rank_name || 'Sem Rank')}" class="tweet-rank-icon" onerror="this.style.display='none'">
+                                        </div>
+                                        <span class="tweet-date">${formattedDate}</span>
+                                    </div>
+                                    <div class="tweet-message">${escapeHtml(tweet.message || '')}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    // Atualizar o último ID de tweet após carregar
+                    if (data.tweets.length > 0) {
+                        lastTweetId = data.tweets[0].id;
+                    }
+                } else {
+                    const errorMsg = data.message || 'Erro desconhecido';
+                    console.error('Erro na resposta:', data);
+                    tweetsList.innerHTML = '<div class="tweet-error">Erro ao carregar tweets: ' + escapeHtml(errorMsg) + '</div>';
+                }
+            } catch (parseError) {
+                console.error('Erro ao fazer parse do JSON:', parseError);
+                console.error('Resposta recebida:', text);
+                tweetsList.innerHTML = '<div class="tweet-error">Erro ao processar resposta do servidor</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar tweets:', error);
+            tweetsList.innerHTML = '<div class="tweet-error">Erro ao carregar tweets: ' + escapeHtml(error.message) + '</div>';
+        });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Verificar se há novos tweets sem recarregar tudo
+function checkForNewTweets() {
+    const tweetsList = document.getElementById('tweetsList');
+    if (!tweetsList) return;
+    
+    // Verificar se o formulário está sendo usado (não atualizar durante envio)
+    const tweetForm = document.getElementById('tweetForm');
+    if (tweetForm) {
+        const submitBtn = tweetForm.querySelector('button[type="submit"]');
+        if (submitBtn && submitBtn.disabled) {
+            return; // Não atualizar se está enviando
+        }
+    }
+    
+    const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/tweets_ajax.php?action=get&limit=1';
+    
+    fetch(apiPath)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro HTTP: ' + response.status);
+            }
+            return response.text();
+        })
+        .then(text => {
+            try {
+                const data = JSON.parse(text);
+                if (data.success && Array.isArray(data.tweets) && data.tweets.length > 0) {
+                    const newestTweet = data.tweets[0];
+                    // Se o tweet mais recente tem ID diferente do último conhecido, recarregar tudo
+                    if (newestTweet.id !== lastTweetId) {
+                        loadTweets(); // Recarregar todos os tweets
+                    }
+                }
+            } catch (e) {
+                // Ignorar erros de parsing silenciosamente durante polling
+                console.error('Erro ao verificar novos tweets:', e);
+            }
+        })
+        .catch(error => {
+            // Ignorar erros de rede silenciosamente durante polling
+            console.error('Erro ao verificar novos tweets:', error);
+        });
+}
+
+// Limpar intervalo ao sair da página
+window.addEventListener('beforeunload', function() {
+    if (tweetsPollInterval) {
+        clearInterval(tweetsPollInterval);
+    }
+});
+
+// Carregar tweets ao carregar a página
+document.addEventListener('DOMContentLoaded', function() {
+    const tweetForm = document.getElementById('tweetForm');
+    const tweetMessage = document.getElementById('tweetMessage');
+    const charCount = document.getElementById('charCount');
+    
+    // Carregar tweets inicialmente
+    loadTweets();
+    
+    // Configurar atualização automática do chat a cada 5 segundos
+    if (tweetsPollInterval) {
+        clearInterval(tweetsPollInterval);
+    }
+    tweetsPollInterval = setInterval(function() {
+        // Verificar se há novos tweets sem recarregar tudo
+        checkForNewTweets();
+    }, 5000); // Atualizar a cada 5 segundos
+    
+    // Atualizar contador de caracteres
+    if (tweetMessage && charCount) {
+        tweetMessage.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+            if (this.value.length > 90) {
+                charCount.style.color = '#dc3545';
+            } else if (this.value.length > 70) {
+                charCount.style.color = '#ff9800';
+            } else {
+                charCount.style.color = '#6c757d';
+            }
+        });
+    }
+    
+    // Enviar tweet
+    if (tweetForm) {
+        tweetForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const message = tweetMessage.value.trim();
+            if (!message) {
+                showTweetAlert('A mensagem não pode estar vazia', 'error');
+                return;
+            }
+            
+            if (message.length > 100) {
+                showTweetAlert('A mensagem não pode ter mais de 100 caracteres', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('action', 'send');
+            formData.append('message', message);
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (!submitBtn) {
+                console.error('Botão de submit não encontrado');
+                return;
+            }
+            
+            // Salvar texto original do botão
+            const originalButtonText = submitBtn.innerHTML;
+            
+            // Função para restaurar o botão (sempre garantir que volte ao normal)
+            const restoreButton = () => {
+                try {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalButtonText; // Garantir que o texto original seja restaurado
+                    }
+                } catch (e) {
+                    console.error('Erro ao restaurar botão:', e);
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar';
+                    }
+                }
+            };
+            
+            // Desabilitar botão durante envio (NUNCA mudar o texto)
+            submitBtn.disabled = true;
+            
+            // Timeout de segurança: restaurar botão após 10 segundos mesmo se houver erro
+            const safetyTimeout = setTimeout(() => {
+                console.warn('Timeout de segurança: restaurando botão');
+                restoreButton();
+            }, 10000);
+            
+            const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/tweets_ajax.php';
+            
+            fetch(apiPath, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                clearTimeout(safetyTimeout);
+                if (!response.ok) {
+                    throw new Error('Erro HTTP: ' + response.status);
+                }
+                return response.text();
+            })
+            .then(text => {
+                try {
+                    const data = JSON.parse(text);
+                    if (data.success) {
+                        // Restaurar botão IMEDIATAMENTE
+                        restoreButton();
+                        
+                        // Não mostrar mensagem de sucesso
+                        tweetForm.reset();
+                        if (charCount) {
+                            charCount.textContent = '0';
+                            charCount.style.color = '#6c757d';
+                        }
+                        // Recarregar tweets imediatamente após enviar
+                        loadTweets();
+                    } else {
+                        restoreButton();
+                        showTweetAlert(data.message || 'Erro ao enviar tweet', 'error');
+                    }
+                } catch (e) {
+                    console.error('Erro ao parsear resposta:', e, text);
+                    restoreButton();
+                    showTweetAlert('Erro ao processar resposta do servidor', 'error');
+                }
+            })
+            .catch(error => {
+                clearTimeout(safetyTimeout);
+                console.error('Erro ao enviar tweet:', error);
+                restoreButton();
+                showTweetAlert('Erro ao enviar tweet: ' + error.message, 'error');
+            });
+        });
+    }
+});
+
+function showTweetAlert(message, type) {
+    const alertDiv = document.getElementById('tweetAlert');
+    if (alertDiv) {
+        alertDiv.textContent = message;
+        alertDiv.className = 'alert ' + (type === 'success' ? 'success' : 'error');
+        alertDiv.style.display = 'block';
+        
+        setTimeout(() => {
+            alertDiv.style.display = 'none';
+        }, 5000);
+    }
 }
 

@@ -21,7 +21,7 @@ include 'includes/header.php';
         </div>
         <div class="hero-content">
             <div class="hero-logo">
-                <img src="Assets/logo.png" alt="Gunbol Logo">
+                <img src="Assets/logo.png" alt="Gunbound Logo">
             </div>
             <?php if (!isLoggedIn()): ?>
                 <div class="hero-buttons">
@@ -30,8 +30,7 @@ include 'includes/header.php';
                 </div>
             <?php else: ?>
                 <div class="hero-buttons">
-                    <a href="dashboard.php" class="btn btn-primary btn-large">Dashboard</a>
-                    <a href="ranking.php" class="btn btn-secondary btn-large">Ver Ranking</a>
+                    <a href="http://www.google.com" target="_blank" class="btn btn-primary btn-large"><i class="fas fa-download"></i> Download</a>
                 </div>
             <?php endif; ?>
         </div>
@@ -251,6 +250,51 @@ include 'includes/header.php';
                 <button class="carousel-btn next-btn" onclick="scrollSetsCarousel(1)">
                     <i class="fas fa-chevron-right"></i>
                 </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Tweets -->
+    <section class="tweets-section">
+        <div class="tweets-wrapper">
+            <div class="tweets-header">
+                <div class="tweets-header-left">
+                    <h2 class="tweets-title">Chat</h2>
+                </div>
+                <button class="tweets-refresh-btn" onclick="loadTweets()" title="Atualizar">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            
+            <div class="tweets-container-full">
+                <div id="tweetsList" class="tweets-list-full">
+                    <div class="tweet-loading">Carregando tweets...</div>
+                </div>
+                
+                <?php if (isLoggedIn()): ?>
+                <div class="tweets-compose-full">
+                    <form id="tweetForm" class="tweet-form">
+                        <div class="tweet-input-wrapper">
+                            <textarea id="tweetMessage" name="message" class="tweet-input" 
+                                      placeholder="Digite sua mensagem..." 
+                                      maxlength="100" 
+                                      rows="2" 
+                                      required></textarea>
+                            <div class="tweet-char-count">
+                                <span id="charCount">0</span>/100
+                            </div>
+                        </div>
+                        <button type="submit" class="tweet-submit-btn">
+                            <i class="fas fa-paper-plane"></i> Enviar
+                        </button>
+                    </form>
+                    <div id="tweetAlert" class="alert" style="display: none;"></div>
+                </div>
+                <?php else: ?>
+                <div class="tweets-login-prompt-full">
+                    <p><a href="#" onclick="event.preventDefault(); openModal('loginModal');">Faça login</a> para enviar tweets</p>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </section>

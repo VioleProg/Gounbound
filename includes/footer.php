@@ -6,14 +6,20 @@ if (!isset($base_path)) {
         $base_path = '../';
     }
 }
-?>
+?>      
+        <center>    
         <footer class="main-footer">
             <div class="container">
                 <div class="footer-content">
-                    <p>&copy; <?php echo date('Y'); ?> Gunbol. Todos os direitos reservados.</p>
+                    <p>&copy; <?php echo date('Y'); ?> Gunbound. Todos os direitos reservados.</p>
+                    
                 </div>
+                <a href="https://discord.gg/uWz9kN7ShB" target="_blank" class="developer-logo" title="Desenvolvido por VioleProg">
+                        <img src="<?php echo $base_path; ?>Assets/dev/violeprog.png" alt="VioleProg">
+                </a>
             </div>
         </footer>
+        </center>
     </div>
     
     <!-- Partículas de fuligem -->
@@ -63,7 +69,7 @@ if (!isset($base_path)) {
             <div class="auth-card">
                 <div class="auth-header">
                     <h1>Criar Conta</h1>
-                    <p>Junte-se ao Gunbol hoje</p>
+                    <p>Junte-se ao Gunbound hoje</p>
                 </div>
                 
                 <div id="registerAlert" class="alert" style="display: none;"></div>

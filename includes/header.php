@@ -10,7 +10,7 @@ if (strpos(__DIR__, '/admin') !== false || strpos(__DIR__, '\\admin') !== false)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?>Gunbol</title>
+    <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?>Gunbound</title>
     <link rel="stylesheet" href="<?php echo $base_path; ?>Assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,7 +47,7 @@ if (strpos(__DIR__, '/admin') !== false || strpos(__DIR__, '\\admin') !== false)
                     </nav>
                     <div class="logo">
                         <a href="<?php echo $base_path; ?>index.php">
-                            <img src="<?php echo $base_path; ?>Assets/logo.png" alt="Gunbol Logo" onerror="this.style.display='none'">
+                            <img src="<?php echo $base_path; ?>Assets/logo.png" alt="Gunbound Logo" onerror="this.style.display='none'">
                         </a>
                     </div>
                 </div>

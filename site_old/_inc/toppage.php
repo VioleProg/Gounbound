@@ -1,1 +1,0 @@
-﻿<?php      Function checapagina($pagina_original){      $pagina_erro='index.php';      $redirecionar=$pagina_erro;      $pagina_browser=end(explode("/", $_SERVER['SCRIPT_NAME']));          if($pagina_original==$pagina_browser){              exit(header("Location: $redirecionar"));          }  }  ?>

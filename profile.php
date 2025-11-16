@@ -643,33 +643,60 @@ document.getElementById('editNicknameForm').addEventListener('submit', function(
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
     alertDiv.style.display = 'none';
     
+    // Função para restaurar botão
+    const restoreButton = () => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    };
+    
+    // Timeout de segurança: restaurar botão após 10 segundos
+    const safetyTimeout = setTimeout(() => {
+        console.warn('Timeout de segurança: restaurando botão de nickname');
+        restoreButton();
+    }, 10000);
+    
     fetch((typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/profile_update.php', {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alertDiv.className = 'alert success';
-            alertDiv.textContent = data.message || 'Nickname alterado com sucesso!';
-            alertDiv.style.display = 'block';
-            setTimeout(() => {
-                location.reload();
-            }, 1500);
-        } else {
+    .then(response => {
+        clearTimeout(safetyTimeout);
+        if (!response.ok) {
+            throw new Error('Erro HTTP: ' + response.status);
+        }
+        return response.text();
+    })
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+            if (data.success) {
+                alertDiv.className = 'alert success';
+                alertDiv.textContent = data.message || 'Nickname alterado com sucesso!';
+                alertDiv.style.display = 'block';
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                alertDiv.className = 'alert error';
+                alertDiv.textContent = data.message || 'Erro ao alterar nickname';
+                alertDiv.style.display = 'block';
+                restoreButton();
+            }
+        } catch (e) {
+            console.error('Erro ao parsear resposta:', e, text);
             alertDiv.className = 'alert error';
-            alertDiv.textContent = data.message || 'Erro ao alterar nickname';
+            alertDiv.textContent = 'Erro ao processar resposta do servidor';
             alertDiv.style.display = 'block';
+            restoreButton();
         }
     })
     .catch(error => {
+        clearTimeout(safetyTimeout);
+        console.error('Erro ao enviar requisição:', error);
         alertDiv.className = 'alert error';
-        alertDiv.textContent = 'Erro ao processar requisição';
+        alertDiv.textContent = 'Erro ao processar requisição: ' + error.message;
         alertDiv.style.display = 'block';
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        restoreButton();
     });
 });
 
@@ -699,31 +726,59 @@ document.getElementById('editPasswordForm').addEventListener('submit', function(
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Alterando...';
     alertDiv.style.display = 'none';
     
+    // Função para restaurar botão
+    const restoreButton = () => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    };
+    
+    // Timeout de segurança: restaurar botão após 10 segundos
+    const safetyTimeout = setTimeout(() => {
+        console.warn('Timeout de segurança: restaurando botão de senha');
+        restoreButton();
+    }, 10000);
+    
     fetch((typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/profile_update.php', {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alertDiv.className = 'alert success';
-            alertDiv.textContent = data.message || 'Senha alterada com sucesso!';
-            alertDiv.style.display = 'block';
-            this.reset();
-        } else {
+    .then(response => {
+        clearTimeout(safetyTimeout);
+        if (!response.ok) {
+            throw new Error('Erro HTTP: ' + response.status);
+        }
+        return response.text();
+    })
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+            if (data.success) {
+                alertDiv.className = 'alert success';
+                alertDiv.textContent = data.message || 'Senha alterada com sucesso!';
+                alertDiv.style.display = 'block';
+                this.reset();
+                restoreButton();
+            } else {
+                alertDiv.className = 'alert error';
+                alertDiv.textContent = data.message || 'Erro ao alterar senha';
+                alertDiv.style.display = 'block';
+                restoreButton();
+            }
+        } catch (e) {
+            console.error('Erro ao parsear resposta:', e, text);
             alertDiv.className = 'alert error';
-            alertDiv.textContent = data.message || 'Erro ao alterar senha';
+            alertDiv.textContent = 'Erro ao processar resposta do servidor';
             alertDiv.style.display = 'block';
+            restoreButton();
         }
     })
     .catch(error => {
+        clearTimeout(safetyTimeout);
+        console.error('Erro ao enviar requisição:', error);
         alertDiv.className = 'alert error';
-        alertDiv.textContent = 'Erro ao processar requisição';
+        alertDiv.textContent = 'Erro ao processar requisição: ' + error.message;
         alertDiv.style.display = 'block';
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        restoreButton();
     });
 });
 
@@ -753,33 +808,60 @@ document.getElementById('editEmailForm').addEventListener('submit', function(e) 
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Alterando...';
     alertDiv.style.display = 'none';
     
+    // Função para restaurar botão
+    const restoreButton = () => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    };
+    
+    // Timeout de segurança: restaurar botão após 10 segundos
+    const safetyTimeout = setTimeout(() => {
+        console.warn('Timeout de segurança: restaurando botão de email');
+        restoreButton();
+    }, 10000);
+    
     fetch((typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/profile_update.php', {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alertDiv.className = 'alert success';
-            alertDiv.textContent = data.message || 'Email alterado com sucesso!';
-            alertDiv.style.display = 'block';
-            setTimeout(() => {
-                location.reload();
-            }, 1500);
-        } else {
+    .then(response => {
+        clearTimeout(safetyTimeout);
+        if (!response.ok) {
+            throw new Error('Erro HTTP: ' + response.status);
+        }
+        return response.text();
+    })
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+            if (data.success) {
+                alertDiv.className = 'alert success';
+                alertDiv.textContent = data.message || 'Email alterado com sucesso!';
+                alertDiv.style.display = 'block';
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                alertDiv.className = 'alert error';
+                alertDiv.textContent = data.message || 'Erro ao alterar email';
+                alertDiv.style.display = 'block';
+                restoreButton();
+            }
+        } catch (e) {
+            console.error('Erro ao parsear resposta:', e, text);
             alertDiv.className = 'alert error';
-            alertDiv.textContent = data.message || 'Erro ao alterar email';
+            alertDiv.textContent = 'Erro ao processar resposta do servidor';
             alertDiv.style.display = 'block';
+            restoreButton();
         }
     })
     .catch(error => {
+        clearTimeout(safetyTimeout);
+        console.error('Erro ao enviar requisição:', error);
         alertDiv.className = 'alert error';
-        alertDiv.textContent = 'Erro ao processar requisição';
+        alertDiv.textContent = 'Erro ao processar requisição: ' + error.message;
         alertDiv.style.display = 'block';
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        restoreButton();
     });
 });
 
@@ -798,33 +880,60 @@ document.getElementById('editAvatarForm').addEventListener('submit', function(e)
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
     alertDiv.style.display = 'none';
     
+    // Função para restaurar botão
+    const restoreButton = () => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    };
+    
+    // Timeout de segurança: restaurar botão após 10 segundos
+    const safetyTimeout = setTimeout(() => {
+        console.warn('Timeout de segurança: restaurando botão de avatar');
+        restoreButton();
+    }, 10000);
+    
     fetch((typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/profile_update.php', {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alertDiv.className = 'alert success';
-            alertDiv.textContent = data.message || 'Foto de perfil alterada com sucesso!';
-            alertDiv.style.display = 'block';
-            setTimeout(() => {
-                location.reload();
-            }, 1500);
-        } else {
+    .then(response => {
+        clearTimeout(safetyTimeout);
+        if (!response.ok) {
+            throw new Error('Erro HTTP: ' + response.status);
+        }
+        return response.text();
+    })
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+            if (data.success) {
+                alertDiv.className = 'alert success';
+                alertDiv.textContent = data.message || 'Foto de perfil alterada com sucesso!';
+                alertDiv.style.display = 'block';
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                alertDiv.className = 'alert error';
+                alertDiv.textContent = data.message || 'Erro ao alterar foto de perfil';
+                alertDiv.style.display = 'block';
+                restoreButton();
+            }
+        } catch (e) {
+            console.error('Erro ao parsear resposta:', e, text);
             alertDiv.className = 'alert error';
-            alertDiv.textContent = data.message || 'Erro ao alterar foto de perfil';
+            alertDiv.textContent = 'Erro ao processar resposta do servidor';
             alertDiv.style.display = 'block';
+            restoreButton();
         }
     })
     .catch(error => {
+        clearTimeout(safetyTimeout);
+        console.error('Erro ao enviar requisição:', error);
         alertDiv.className = 'alert error';
-        alertDiv.textContent = 'Erro ao processar requisição';
+        alertDiv.textContent = 'Erro ao processar requisição: ' + error.message;
         alertDiv.style.display = 'block';
-    })
-    .finally(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        restoreButton();
     });
 });
 </script>

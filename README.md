@@ -1,6 +1,6 @@
-# Gunbol - Site Profissional
+# Gunbound - Site Profissional
 
-Site moderno e profissional para o servidor Gunbol (Gunbound).
+Site moderno e profissional para o servidor Gunbound (Gunbound).
 
 ## Características
 

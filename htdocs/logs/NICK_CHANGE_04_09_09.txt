@@ -1,5 +1,0 @@
-[Fri Sep 04 2009 10:02AM] [189.47.253.216  OLD: SeoulPlaer New: Seoul]
-[Fri Sep 04 2009 10:02AM] [189.47.253.216  OLD: Seoul New: SeoulPlaer]
-[Fri Sep 04 2009 10:02AM] [189.47.253.216  OLD: SeoulPlaer New:  Seoul Plaer]
-[Fri Sep 04 2009 10:02AM] [189.47.253.216  OLD:  Seoul Plaer New: SeoulPlaer]
-[Fri Sep 04 2009 05:57PM] [187.20.203.33  OLD: amanha New: AJSNJA a]
