@@ -1,12 +1,13 @@
 <?php 
+// Incluir mesh.php primeiro para ter acesso às funções mysql_*
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+include("../mesh.php");
+
 // Processar POST antes de incluir header (para evitar erro ao usar header())
 if(isset($_POST['updateacc']))
 {
-    // Iniciar sessão e verificar autoridade
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    include("../mesh.php");
     include("../includes/rank_functions.php");
     
     // Verificar autoridade
@@ -105,6 +106,11 @@ $search = !empty($search_raw) ? mysql_real_escape_string($search_raw) : '';
 $submit_raw = $_GET['submit'] ?? '';
 $submit = !empty($submit_raw) ? mysql_real_escape_string($submit_raw) : '';
 
+// Verificar se há erro de conexão com banco
+if (!function_exists('mysql_query')) {
+    die('Erro: Funções MySQL não disponíveis. Verifique se mesh.php foi incluído corretamente.');
+}
+
 if (empty($search)) {
     ?>
     <a name="maincontent"></a>
@@ -148,8 +154,30 @@ if($sqllye == 0)
 }
 
 // Buscar dados do jogo
-$sqllog = mysql_query("SELECT * FROM game WHERE Id='$search'");
+$sqllog = @mysql_query("SELECT * FROM game WHERE Id='$search'");
+if (!$sqllog) {
+    ?>
+    <a name="maincontent"></a>
+    <div class="error-message" style="background: #f8d7da; color: #721c24; padding: 1rem; margin: 1rem 0; border: 1px solid #f5c6cb; border-radius: 8px; border-left: 4px solid #dc3545;">
+        <i class="fas fa-exclamation-circle"></i> Erro ao buscar dados do jogo: <?php echo htmlspecialchars(mysql_error()); ?>
+    </div>
+    <p style="margin-top: 20px;"><a href="user.php" class="button1">Voltar</a></p>
+    <?php
+    include("footer.php");
+    exit;
+}
 $sqllylog = mysql_fetch_assoc($sqllog);
+if (!$sqllylog) {
+    ?>
+    <a name="maincontent"></a>
+    <div class="error-message" style="background: #f8d7da; color: #721c24; padding: 1rem; margin: 1rem 0; border: 1px solid #f5c6cb; border-radius: 8px; border-left: 4px solid #dc3545;">
+        <i class="fas fa-exclamation-circle"></i> Dados do jogo não encontrados.
+    </div>
+    <p style="margin-top: 20px;"><a href="user.php" class="button1">Voltar</a></p>
+    <?php
+    include("footer.php");
+    exit;
+}
 $user_name = $sqllylog['Id'] ?? '';
 $nickname = $sqllylog['Nickname'] ?? $sqllylog['NickName'] ?? '';
 $gp = $sqllylog['TotalScore'] ?? 0;

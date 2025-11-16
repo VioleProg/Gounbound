@@ -25,6 +25,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Processar ações de deletar
+if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
+    $delete_id = (int)$_GET['delete'];
+    $delete = mysql_query("DELETE FROM gbevents WHERE Id = $delete_id");
+    if ($delete) {
+        $success = "Evento deletado com sucesso!";
+    } else {
+        $error = 'Erro ao deletar evento: ' . mysql_error();
+    }
+}
+
 // Listar eventos
 $events = [];
 $result = @mysql_query("SELECT * FROM gbevents ORDER BY Date DESC LIMIT 20");
@@ -109,9 +120,28 @@ if ($result) {
                 <?php if (count($events) > 0): ?>
                     <?php foreach ($events as $item): ?>
                         <div style="padding: 1rem; margin-bottom: 1rem; background: var(--admin-bg); border-radius: 8px; border-left: 4px solid var(--admin-secondary);">
-                            <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--admin-secondary);">
-                                <?php echo htmlspecialchars($item['Title']); ?>
-                            </h3>
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                <h3 style="margin: 0; font-size: 1rem; color: var(--admin-secondary); flex: 1;">
+                                    <?php echo htmlspecialchars($item['Title']); ?>
+                                </h3>
+                                <div style="display: flex; gap: 0.5rem; margin-left: 1rem;">
+                                    <a href="edit_event.php?id=<?php echo $item['Id']; ?>" 
+                                       style="padding: 0.4rem 0.8rem; background: var(--admin-secondary); color: #fff; 
+                                              border-radius: 6px; text-decoration: none; font-size: 0.85rem;
+                                              display: inline-flex; align-items: center; gap: 0.3rem;"
+                                       title="Editar">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                    <a href="?delete=<?php echo $item['Id']; ?>" 
+                                       onclick="return confirm('Tem certeza que deseja deletar este evento?');"
+                                       style="padding: 0.4rem 0.8rem; background: #dc3545; color: #fff; 
+                                              border-radius: 6px; text-decoration: none; font-size: 0.85rem;
+                                              display: inline-flex; align-items: center; gap: 0.3rem;"
+                                       title="Deletar">
+                                        <i class="fas fa-trash"></i> Deletar
+                                    </a>
+                                </div>
+                            </div>
                             <p style="margin: 0; font-size: 0.85rem; color: var(--admin-text-light);">
                                 <i class="fas fa-calendar"></i> <?php echo date('d/m/Y', strtotime($item['Date'])); ?> | 
                                 <i class="fas fa-user"></i> <?php echo htmlspecialchars($item['Author']); ?>
