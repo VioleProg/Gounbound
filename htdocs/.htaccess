@@ -1,0 +1,20 @@
+Options +FollowSymLinks
+RewriteEngine On
+
+Options -MultiViews
+Options All -Indexes
+
+
+
+ErrorDocument 400 /index.jsp
+ErrorDocument 403 /index.jsp
+ErrorDocument 404 /index.jsp
+ErrorDocument 500 /index.jsp
+
+
+RewriteRule ^home\.jsp index.php [L]
+RewriteRule ^index\.jsp index.php [L]
+RewriteRule ^sig/(.*) gbsig.php?nick=$1 [L]
+RewriteRule ^(.*)\.jsp index.php?write=$1 [L]
+RewriteRule ^(.*)\.jsp index.php?write=$1 [L]
+

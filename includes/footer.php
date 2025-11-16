@@ -120,6 +120,71 @@ if (!isset($base_path)) {
         </div>
     </div>
     
+    <!-- Modal de Avatares -->
+    <div class="auth-modal" id="avatarsModal">
+        <div class="auth-modal-content auth-modal-large">
+            <button class="auth-modal-close" onclick="closeModal('avatarsModal')">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="auth-card">
+                <div class="avatars-header">
+                    <button class="btn-voltar" onclick="closeModal('avatarsModal')">
+                        <i class="fas fa-arrow-left"></i> VOLTAR
+                    </button>
+                    <button class="btn-ordenar" onclick="sortAvatars()">
+                        ORDENAR AVATARES POR ORDEM ALFABÉTICA IN-GAME
+                    </button>
+                </div>
+                
+                <div class="avatars-section">
+                    <h2 class="section-title">Meus Avatares</h2>
+                    <div class="avatars-table-container">
+                        <table class="avatars-table">
+                            <thead>
+                                <tr>
+                                    <th>Imagem</th>
+                                    <th>Tipo</th>
+                                    <th>Nome</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="avatarsList">
+                                <tr>
+                                    <td colspan="4" class="text-center">Carregando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="closet-section">
+                    <h2 class="section-title">Meu Closet</h2>
+                    <p class="closet-description">
+                        Os avatares que estiverem no seu closet não poderão ser acessados através do jogo. 
+                        Para isso, será necessário recupera-los. Após recuperar eles voltam a aparecer no jogo e são retirados do seu closet.
+                    </p>
+                    <div class="avatars-table-container">
+                        <table class="avatars-table">
+                            <thead>
+                                <tr>
+                                    <th>Imagem</th>
+                                    <th>Tipo</th>
+                                    <th>Nome</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="closetList">
+                                <tr>
+                                    <td colspan="4" class="text-center">Carregando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Modal de Ranking -->
     <div class="auth-modal" id="rankingModal">
         <div class="auth-modal-content auth-modal-large">

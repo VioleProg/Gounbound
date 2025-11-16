@@ -1,0 +1,77 @@
+/*main only*/
+.bbct {height:269px; }
+.bbcb {width:780px; float:left; background:url(images/gunbound/bg_content_main.gif) repeat-y; }
+.bbcb .mleft {float:left; width:160px; text-align:center; }
+.bbcb .mcenter {float:left; width:440px; text-align:center; position:relative;}
+.bbcb .mright {float:left; width:177px; text-align:center; }
+#bbbtm {width:780px; margin:0 auto; background:url(images/gunbound/bg_btm_main.gif) no-repeat; height:7px; overflow:hidden; clear:both}
+
+/*main left*/
+#leftlist_tit {width:146px; height:16px; margin:0 auto; margin-top:11px; }
+#leftlist_tit h3 {display:none; }
+#leftlist_tit a {float:right; margin-right:5px; }
+.announce {background:url(images/gunbound/l_announcement.gif) no-repeat; }
+.event {background:url(images/gunbound/l_event.gif) no-repeat; }
+#leftlist {width:146px; margin-top:5px; }
+html>body #leftlist {margin:0 auto; margin-top:5px; }
+#leftlist li {background:url(images/gunbound/l_listbg.gif) no-repeat; height:18px; padding:1px 0 0 10px; }
+#leftlist li a {font-size:10px; color:#fff; }
+#leftlist li.top {margin-top:-1px; }
+#leftquick {margin:11px 0 16px 0}
+
+#recommand_t {width:146px; background:url(images/gunbound/lbox02_t.gif) no-repeat; margin:0 auto; height:5px; overflow:hidden; margin-top:10px;}
+#recommand_b {width:146px; background:url(images/gunbound/lbox02_b.gif) no-repeat 0 bottom; margin:0 auto; }
+#recommand_b .thum {}
+#recommand_b .exp {text-align:right; margin:4px 10px 8px 0; font-size:9px; }
+#recommand_b .exp span {font-size:10px; }
+
+/* poll css is in gunbound.css */
+
+/*main center*/
+#mdown {position:absolute; top:-15px; left:7px; }
+#mleague {margin-top:70px; }
+#mranking {width:426px; background:url(images/gunbound/m_ranking_bg.gif) no-repeat; margin:0 auto; margin-top:6px; padding-top:8px; padding-bottom:8px;}
+html>body #mranking {height:137px; padding-bottom:3px}
+#mranking .tit {width:414px; height:25px; background:url(images/gunbound/m_ranking_tit.gif) no-repeat; margin:0 auto; margin-bottom:5px;}
+#mranking .tit a {float:right; margin:5px 5px 0 0 }
+#mranking td {font-size:9px; letter-spacing:-1;}
+#mranking .ranking10 {border:1px solid #898989; background:#fff url(images/common/sq_gray02.gif) repeat-y center 0; width:414px; margin:0 auto; padding:4px 0; }
+#mranking .ranking10 td {font-size:9px; letter-spacing:-1;}
+#mranking .ranking10 .dotline {background:url(images/common/bu_dot05.gif) repeat-x; }
+
+/*main right*/
+#signin {width:167px; height:124px; background:url(images/gunbound/r_signin.gif) no-repeat; margin:6px 0 0 4px; position:relative; }
+#signin .in {position:absolute; top:23px; left:32px; }
+#signin .up {position:absolute; top:86px; left:0; width:167px; text-align:center; font-size:9px; }
+#signin .in a, #signin .up a {font-weight:bold; text-decoration:underline; }
+#signin_af {width:167px; height:184px; background:url(images/gunbound/r_signin03.gif) no-repeat; margin:6px 0 0 4px; position:relative; }
+#signin_af .hi {color:#4F4F4F; line-height:1.4; text-align:left; padding:9px 0 14px 11px; }
+#signin_af .hi {color:#4F4F4F; line-height:1.4; text-align:left; padding:9px 0 14px 11px; }
+#signin_af .info {width:150px; margin:0 auto; padding-bottom:9px; }
+#signin_af .infotit {border-bottom:1px solid #CECECE; text-align:left; margin:3px 0 5px 0;}
+#signin_af .infotit a {float:right; }
+#signin_af .infoctt {background:url(images/gunbound/bu_arw01.gif) no-repeat 5px 7px; padding:2px 0 3px 12px; font-size:9px; text-align:left; }
+#signin_af .infoguild {font-size:9px; padding-top:1px; }
+#signin_af .infoguild02 {font-size:9px; padding-top:2px; text-align:left; }
+#signin_af .infoguild02 img.thum {margin:0 6px 0 5px; border:1px solid #CECECE; }
+#signin_af .infoguild02 a.guild {font-weight:bold; color:#4D4D98; margin-left:2px; }
+#signin_af .createid {margin-bottom:9px; }
+#rbanner {width:167px; margin:9px 0 0 4px; }
+#rightlist_tit {width:160px; height:16px; margin:17px 0 7px 6px; }
+#rightlist_tit h3 {display:none; }
+#rightlist_tit a {float:right; margin-right:4px; }
+.screenshot {background:url(images/gunbound/rtit_screenshot.gif) no-repeat; }
+.avatar {background:url(images/gunbound/rtit_avatar.gif) no-repeat; }
+#rscreen {width:160px; height:54px; margin:0 0 0 6px; }
+#rscreen .shotl {float:left; background:url(images/gunbound/r_screenshotbg.gif) no-repeat; }
+#rscreen .shotr {float:right; background:url(images/gunbound/r_screenshotbg.gif) no-repeat; }
+#rscreen .shotl img, #rscreen .shotr img {margin:3px; }
+#ravatar {width:160px; margin:0 0 0 6px; }
+#ravatar .avatarl {float:left; background:url(images/gunbound/r_avatarbg.gif) no-repeat; }
+#ravatar .avatarl img {margin:1px; }
+#ravatar .avatarr {float:right; width:62px; margin-top:2px; font-size:9px; text-align:left; }
+#ravatar .avatarr p {margin-left:2px}
+#ravatar .avatarr .bar {height:1px; overflow:hidden; background:#BDBDBD; margin:5px 0; }
+
+#rfloatbanner {position:absolute; top:0; left:789px;}
+#floatLayer {position:absolute; top:0; left:789px;}

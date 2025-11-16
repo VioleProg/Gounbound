@@ -1,0 +1,5 @@
+[Wed Sep 09 2009 08:27AM] [189.46.204.148  Pacote: pacote simples Preço: 10]
+[Wed Sep 09 2009 08:44AM] [189.46.204.148  Pacote: pacote simples Preço: 10]
+[Wed Sep 09 2009 09:06AM] [189.46.204.148  Pacote: pacote completo Preço: 30]
+[Wed Sep 09 2009 09:26AM] [189.46.204.148  Pacote: pacote simples Preço: 10]
+[Wed Sep 09 2009 09:36AM] [189.46.204.148  Pacote: pacote completo Preço: 30]

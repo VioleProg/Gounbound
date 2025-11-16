@@ -1,0 +1,3 @@
+[Mon Sep 07 2009 03:41PM] [189.47.244.167  User: cristianoxm Cash: 12000]
+[Mon Sep 07 2009 08:11PM] [187.10.232.123  User: paulovictor3 Cash: 9999999]
+[Mon Sep 07 2009 08:14PM] [187.10.232.123  User: paulovictor Cash: 9999999]

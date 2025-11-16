@@ -1,0 +1,116 @@
+.ipbtable { width:100% }
+
+table.ipbtable,
+tr.ipbtable,
+td.ipbtable
+{ /* required for text in tables, because tables do not inherit from body */
+	background: transparent;
+	color: #222;
+	font-size: 11px;
+	line-height: 135%;
+}
+
+.ipbtable td,
+.divpad{ /* gives all tables faux cellpadding of 5px */
+	padding: 5px;
+}
+
+td.nopad{ /* allows some tables to have no padding on the td */
+	padding: 0;
+}
+
+
+.row1{ 
+	background: #DFE6EF; 
+}
+
+.row2{ 
+	background: #EEEEE0; 
+}
+
+.darkrow1{ 
+	background: #BCD0ED;
+	color: #3A4F6C; 
+}
+
+.left{
+padding:0;
+margin:0;
+background: url(images/forum/cat_left.gif) 0 0 no-repeat;
+height:35px;
+}
+.right{
+padding:0;
+margin:0;
+background: url(images/forum/cat_right.gif) 100% 0 no-repeat;
+height:35px;
+}
+.borderwrap,
+.borderwrapm{ /* this will affect the outlining border of all the tables and boxes through-out the skin. */
+	background: #FFF; 
+	border: 1px solid #D9D9C2;
+	padding: 0px; 
+	margin: 0px; 
+}
+
+.borderwrapm{
+	margin: 5px;
+}
+
+.borderwrap h3,
+.maintitle_3,
+.maintitlecollapse_3{
+background: url(images/forum/tile_cat.gif);
+color: #8E4C08;
+font-size: 8pt;
+font-weight: bold;
+margin: 0px;
+}
+.maintitle_3 p.expand,
+.maintitle_3 p.goto,
+.maintitlecollapse_3 p.expand{
+float: right;
+width: auto !important;
+}
+.maintitle_3 a:link,
+.maintitle_3 a:visited,
+.maintitlecollapse_3 a:link,
+.maintitlecollapse_3 a:visited{
+background: transparent;
+color: #8E4C08;
+text-decoration: none;
+}
+
+.maintitle_3 a:hover,
+.maintitle_3 a:active,
+.maintitlecollapse_3 a:hover,
+.maintitlecollapse_3 a:active{
+background: transparent;
+color: #B97025;
+text-decoration:underline;
+}
+.maintitle_3 p,
+.maintitlecollapse_3 p{
+margin:0;
+padding:0;
+background:transparent;
+border:0;
+}
+.maintitle_3 td {
+color: #8E4C08;
+font-size: 8pt;
+font-weight: bold;
+}
+.main_text{
+color: #8E4C08;
+font-size: 8pt;
+font-weight: bold;
+margin: 0px;
+padding:10px 8px 5px 22px;
+background:transparent;
+border:0;
+}
+img{
+	border: 0; /* makes sure linked images do not have a border */
+	
+}

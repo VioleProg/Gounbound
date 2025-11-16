@@ -1,6 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'includes/functions.php';
+require_once 'includes/rank_functions.php';
 
 if (!isLoggedIn()) {
     header('Location: login.php');
@@ -83,10 +84,13 @@ if ($guild) {
     $clan_ranking = '[' . $guild_rank . ' / ' . $member_count . ']';
 }
 
-// Progresso do jogo (GP necessário para próximo nível)
+// Progresso do jogo baseado no sistema de ranks
 $current_gp = $user_info['TotalScore'] ?? 0;
-$gp_needed = 1000; // Valor padrão
-$gp_progress = min(100, ($current_gp % $gp_needed) / $gp_needed * 100);
+$rank_progress = getRankProgress($current_gp);
+$gp_needed = $rank_progress['gp_needed'];
+$gp_progress = $rank_progress['progress'];
+$current_rank = $rank_progress['current'];
+$next_rank = $rank_progress['next'];
 
 $page_title = 'Dashboard';
 include 'includes/header.php';
@@ -101,15 +105,56 @@ include 'includes/header.php';
         <!-- Progresso do Jogo -->
         <div class="dashboard-progress-section">
             <div class="progress-header">
-                <i class="fas fa-shield-alt progress-icon"></i>
                 <h2 class="progress-title">Progresso do seu jogo</h2>
                 <i class="fas fa-trophy progress-icon-right"></i>
             </div>
             <div class="progress-bar-container">
-                <div class="progress-bar">
-                    <div class="progress-bar-fill" style="width: <?php echo $gp_progress; ?>%"></div>
+                <div class="progress-bar-wrapper">
+                    <?php if ($next_rank): ?>
+                        <div class="progress-rank-image progress-rank-left">
+                            <?php echo getRankImage($current_rank['grade'], 'large'); ?>
+                            <div class="progress-rank-name"><?php echo htmlspecialchars($current_rank['name']); ?></div>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <div class="progress-bar-middle">
+                        <div class="progress-bar">
+                            <div class="progress-bar-fill" style="width: <?php echo $gp_progress; ?>%"></div>
+                            <?php if ($next_rank): ?>
+                                <div class="progress-percentage"><?php echo number_format($gp_progress, 1); ?>%</div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="progress-info">
+                            <?php if ($next_rank): ?>
+                                <div class="progress-text">
+                                    <strong><?php echo number_format($current_gp); ?></strong> / <strong><?php echo number_format($next_rank['gp']); ?></strong> GP
+                                </div>
+                                <div class="progress-text">
+                                    Faltam <strong><?php echo number_format($gp_needed); ?> GP</strong> para o próximo rank
+                                </div>
+                            <?php else: ?>
+                                <div class="progress-text">
+                                    <strong>Rank Máximo Alcançado!</strong>
+                                </div>
+                                <div class="progress-text">
+                                    Você está no rank <strong><?php echo htmlspecialchars($current_rank['name']); ?></strong> com <?php echo number_format($current_gp); ?> GP
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <?php if ($next_rank): ?>
+                        <div class="progress-rank-image progress-rank-right">
+                            <?php echo getRankImage($next_rank['grade'], 'large'); ?>
+                            <div class="progress-rank-name"><?php echo htmlspecialchars($next_rank['name']); ?></div>
+                        </div>
+                    <?php else: ?>
+                        <div class="progress-rank-image progress-rank-right">
+                            <?php echo getRankImage($current_rank['grade'], 'large'); ?>
+                            <div class="progress-rank-name"><?php echo htmlspecialchars($current_rank['name']); ?></div>
+                        </div>
+                    <?php endif; ?>
                 </div>
-                <div class="progress-text">Faltam <?php echo number_format($gp_needed - ($current_gp % $gp_needed)); ?> GPs</div>
             </div>
         </div>
         
@@ -155,7 +200,7 @@ include 'includes/header.php';
                         <span class="info-label">Avatares:</span>
                         <span class="info-value">
                             <?php echo $total_avatars; ?>
-                            <button class="btn-listar" onclick="alert('Funcionalidade em desenvolvimento')">LISTAR</button>
+                            <button class="btn-listar" onclick="openModal('avatarsModal'); loadAvatars();">LISTAR</button>
                         </span>
                     </div>
                     <div class="info-item">
@@ -212,7 +257,6 @@ include 'includes/header.php';
             <h2 class="section-title">Ranking</h2>
             <div class="ranking-info">
                 <div class="ranking-item">
-                    <i class="fas fa-shield-alt ranking-icon"></i>
                     <span class="ranking-label">Ranking Total:</span>
                     <span class="ranking-value"><?php echo number_format($user_info['TotalRank'] ?? 0); ?> [<?php echo number_format($gpontos); ?> GP]</span>
                 </div>
@@ -280,26 +324,120 @@ include 'includes/header.php';
     margin-top: 1rem;
 }
 
+.progress-bar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.progress-rank-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.progress-rank-image img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.progress-rank-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    text-align: center;
+    max-width: 80px;
+    word-wrap: break-word;
+}
+
+.progress-bar-middle {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
 .progress-bar {
     width: 100%;
-    height: 24px;
+    height: 32px;
     background: #e5e7eb;
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
     position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .progress-bar-fill {
     height: 100%;
     background: linear-gradient(90deg, #10b981 0%, #059669 100%);
-    transition: width 0.3s ease;
+    transition: width 0.5s ease;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.progress-percentage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.progress-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
 .progress-text {
-    margin-top: 0.5rem;
     text-align: center;
     color: var(--text-light);
     font-size: 0.9rem;
+}
+
+.progress-text strong {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .progress-bar-wrapper {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .progress-rank-image {
+        flex-direction: row;
+        gap: 0.75rem;
+    }
+    
+    .progress-rank-image img {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .progress-rank-name {
+        max-width: none;
+        font-size: 0.85rem;
+    }
+    
+    .progress-bar {
+        height: 28px;
+    }
+    
+    .progress-percentage {
+        font-size: 0.8rem;
+    }
 }
 
 .dashboard-section {
