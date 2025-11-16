@@ -1,0 +1,20 @@
+<?php
+/*
+	Configuration settings for NewsScript
+*/
+
+// Database Settings //////////////////////////////////////////////////////////
+
+	$db_host =		"localhost";
+	$db_name =		"gbwc2";			//MySQL DB name
+	$db_user =		"root";			//MySQL User
+	$db_password =	"";			//MySQL password
+	
+////////////////////////////////////////////////////////////////////////////////
+
+	$lim = 20; // Only show first 20 News Items.
+
+	$template = "modulos.php/templates/DisplayTemplate.php"; // default template
+	
+////////////////////////////////////////////////////////////////////////////////
+?>
