@@ -22,28 +22,31 @@ if (strpos(__DIR__, '/admin') !== false || strpos(__DIR__, '\\admin') !== false)
         <header class="main-header">
             <div class="container">
                 <div class="header-content">
+                    <nav class="main-nav">
+                        <ul class="nav-menu">
+                            <li><a href="<?php echo $base_path; ?>index.php" class="nav-link"><i class="fas fa-home"></i> <span>Início</span></a></li>
+                            <li><a href="<?php echo $base_path; ?>ranking.php" class="nav-link"><i class="fas fa-trophy"></i> <span>Ranking</span></a></li>
+                            <?php if (isLoggedIn()): ?>
+                                <li><a href="<?php echo $base_path; ?>dashboard.php" class="nav-link"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a></li>
+                                <li><a href="<?php echo $base_path; ?>profile.php" class="nav-link"><i class="fas fa-user"></i> <span>Perfil</span></a></li>
+                                <?php if (isAdmin()): ?>
+                                    <li><a href="<?php echo $base_path; ?>admin/index.php" class="nav-link admin-link"><i class="fas fa-shield-alt"></i> <span>Admin</span></a></li>
+                                <?php endif; ?>
+                                <li><a href="<?php echo $base_path; ?>logout.php" class="nav-link logout-link"><i class="fas fa-sign-out-alt"></i> <span>Sair</span></a></li>
+                            <?php else: ?>
+                                <li><a href="<?php echo $base_path; ?>login.php" class="nav-link"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a></li>
+                                <li><a href="<?php echo $base_path; ?>register.php" class="nav-link btn-register"><i class="fas fa-user-plus"></i> <span>Registrar</span></a></li>
+                            <?php endif; ?>
+                        </ul>
+                        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    </nav>
                     <div class="logo">
                         <a href="<?php echo $base_path; ?>index.php">
                             <img src="<?php echo $base_path; ?>Assets/logo.png" alt="Gunbol Logo" onerror="this.style.display='none'">
                         </a>
                     </div>
-                    <nav class="main-nav">
-                        <ul>
-                            <li><a href="<?php echo $base_path; ?>index.php">Início</a></li>
-                            <li><a href="<?php echo $base_path; ?>ranking.php">Ranking</a></li>
-                            <?php if (isLoggedIn()): ?>
-                                <li><a href="<?php echo $base_path; ?>dashboard.php">Dashboard</a></li>
-                                <li><a href="<?php echo $base_path; ?>profile.php">Perfil</a></li>
-                                <?php if (isAdmin()): ?>
-                                    <li><a href="<?php echo $base_path; ?>admin/index.php">Admin</a></li>
-                                <?php endif; ?>
-                                <li><a href="<?php echo $base_path; ?>logout.php">Sair</a></li>
-                            <?php else: ?>
-                                <li><a href="<?php echo $base_path; ?>login.php">Login</a></li>
-                                <li><a href="<?php echo $base_path; ?>register.php" class="btn-register">Registrar</a></li>
-                            <?php endif; ?>
-                        </ul>
-                    </nav>
                 </div>
             </div>
         </header>

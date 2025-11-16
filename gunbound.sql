@@ -2030,8 +2030,8 @@ CREATE TABLE `gbevents`  (
 -- ----------------------------
 -- Records of gbevents
 -- ----------------------------
-INSERT INTO `gbevents` VALUES (1, 'Evento Bienvenida', 'Hemos Activado el Evento de Gerrilla, como un evento de bienvenida, por favor no usen hacker para evitar baneos', '', '2009-10-24', 'Javier', 0);
-INSERT INTO `gbevents` VALUES (2, 'Evento de Navidad', 'Ya hemos activado nuestro evento navideño espero q los difruten', '', '2009-12-11', 'Javier', 0);
+INSERT INTO `gbevents` VALUES (1, 'Patch Notes', 'descrição', '', '2025-00-00', 'Administrador', 0);
+INSERT INTO `gbevents` VALUES (2, 'Evento', 'descrição', '', '2025-12-00', 'Administrador', 0);
 
 -- ----------------------------
 -- Table structure for gbeventscomments

@@ -379,3 +379,100 @@ if (document.readyState === 'loading') {
     initSparkles();
 }
 
+// Sets Carousel Scroll
+function scrollSetsCarousel(direction) {
+    const carousel = document.getElementById('setsCarousel');
+    if (!carousel) return;
+    
+    const scrollAmount = 250; // Quantidade de pixels para scrollar
+    const currentScroll = carousel.scrollLeft;
+    const newScroll = currentScroll + (direction * scrollAmount);
+    
+    carousel.scrollTo({
+        left: newScroll,
+        behavior: 'smooth'
+    });
+}
+
+// News Navigation
+function scrollNews(direction) {
+    // Esta função pode ser expandida para navegar entre diferentes notícias
+    // Por enquanto, apenas placeholder
+    console.log('News navigation:', direction);
+}
+
+// Screenshot Modal
+function openScreenshotModal(imageSrc) {
+    const modal = document.getElementById('screenshotModal');
+    const modalImage = document.getElementById('screenshotModalImage');
+    
+    if (modal && modalImage) {
+        modalImage.src = imageSrc;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeScreenshotModal(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    
+    const modal = document.getElementById('screenshotModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+// Fechar modal com ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeScreenshotModal();
+    }
+});
+
+// Mobile Menu Toggle
+function toggleMobileMenu() {
+    const navMenu = document.querySelector('.nav-menu');
+    const toggleBtn = document.querySelector('.mobile-menu-toggle');
+    
+    if (navMenu) {
+        navMenu.classList.toggle('active');
+        if (toggleBtn) {
+            const icon = toggleBtn.querySelector('i');
+            if (icon) {
+                if (navMenu.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        }
+    }
+}
+
+// Fechar menu mobile ao clicar em um link
+document.addEventListener('DOMContentLoaded', function() {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const navMenu = document.querySelector('.nav-menu');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 768 && navMenu) {
+                navMenu.classList.remove('active');
+                const toggleBtn = document.querySelector('.mobile-menu-toggle');
+                if (toggleBtn) {
+                    const icon = toggleBtn.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            }
+        });
+    });
+});
+
