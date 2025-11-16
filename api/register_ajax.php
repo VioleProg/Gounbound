@@ -24,7 +24,8 @@ $email = trim($_POST['email'] ?? '');
 $email_confirm = trim($_POST['email_confirm'] ?? '');
 $password = $_POST['password'] ?? '';
 $password_confirm = $_POST['password_confirm'] ?? '';
-$gender = $_POST['gender'] ?? '0';
+$gender = $_POST['gender'] ?? '1';
+$country = trim($_POST['country'] ?? '');
 
 $errors = [];
 
@@ -61,13 +62,21 @@ if ($password !== $password_confirm) {
     $errors[] = 'As senhas não coincidem';
 }
 
+if (empty($country)) {
+    $errors[] = 'País é obrigatório';
+}
+
 if (!empty($errors)) {
     echo json_encode(['success' => false, 'message' => implode('<br>', $errors)]);
     exit;
 }
 
 try {
-    $result = register($login, $nick, $email, $password, $gender);
+    // Converter nome do país para código (por enquanto usar o nome como código)
+    // Se necessário, criar um mapeamento de nomes para códigos numéricos
+    $country_code = $country; // Usar o nome do país como código por enquanto
+    
+    $result = register($login, $nick, $email, $password, $gender, $country_code);
     if ($result['success']) {
         $user_number = isset($result['user_number']) ? $result['user_number'] : 0;
         $message = 'Conta criada com sucesso!';

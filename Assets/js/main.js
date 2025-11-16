@@ -535,6 +535,118 @@ function initModals() {
             handleRegister();
         });
     }
+    
+    // Inicializar seletor de países
+    initCountrySelect();
+}
+
+// Country Select
+let countriesData = [];
+function initCountrySelect() {
+    const countrySelectDisplay = document.getElementById('countrySelectDisplay');
+    const countrySelectTrigger = countrySelectDisplay?.querySelector('.country-select-trigger');
+    const countrySelectDropdown = document.getElementById('countrySelectDropdown');
+    const countryList = document.getElementById('countryList');
+    const countrySearch = document.getElementById('countrySearch');
+    const countrySelect = document.getElementById('modal_country');
+    
+    if (!countrySelectDisplay || !countryList) return;
+    
+    // Carregar países
+    const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/get_countries.php';
+    fetch(apiPath)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.countries) {
+                countriesData = data.countries;
+                renderCountries(countriesData);
+                
+                // Preencher select oculto
+                countrySelect.innerHTML = '<option value="">Selecione um país</option>';
+                countriesData.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country.name;
+                    option.textContent = country.name;
+                    countrySelect.appendChild(option);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar países:', error);
+            countryList.innerHTML = '<div class="country-loading">Erro ao carregar países</div>';
+        });
+    
+    // Toggle dropdown
+    if (countrySelectTrigger) {
+        countrySelectTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            countrySelectDisplay.classList.toggle('active');
+        });
+    }
+    
+    // Fechar ao clicar fora
+    document.addEventListener('click', function(e) {
+        if (!countrySelectDisplay.contains(e.target)) {
+            countrySelectDisplay.classList.remove('active');
+        }
+    });
+    
+    // Busca de países
+    if (countrySearch) {
+        countrySearch.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = countriesData.filter(country => 
+                country.name.toLowerCase().includes(searchTerm)
+            );
+            renderCountries(filtered);
+        });
+    }
+    
+    function renderCountries(countries) {
+        countryList.innerHTML = '';
+        if (countries.length === 0) {
+            countryList.innerHTML = '<div class="country-loading">Nenhum país encontrado</div>';
+            return;
+        }
+        
+        countries.forEach(country => {
+            const item = document.createElement('div');
+            item.className = 'country-item';
+            item.innerHTML = `
+                <img src="${country.flag}" alt="${country.name}" class="country-flag">
+                <span class="country-name">${country.name}</span>
+            `;
+            item.addEventListener('click', function() {
+                selectCountry(country);
+            });
+            countryList.appendChild(item);
+        });
+    }
+    
+    function selectCountry(country) {
+        // Atualizar select oculto
+        countrySelect.value = country.name;
+        
+        // Atualizar display
+        const trigger = countrySelectDisplay.querySelector('.country-select-trigger');
+        const flagPlaceholder = trigger.querySelector('.country-flag-placeholder');
+        const namePlaceholder = trigger.querySelector('.country-name-placeholder');
+        
+        if (flagPlaceholder) {
+            flagPlaceholder.innerHTML = `<img src="${country.flag}" alt="${country.name}" class="country-flag">`;
+        }
+        if (namePlaceholder) {
+            namePlaceholder.textContent = country.name;
+        }
+        
+        // Fechar dropdown
+        countrySelectDisplay.classList.remove('active');
+        
+        // Limpar busca
+        if (countrySearch) {
+            countrySearch.value = '';
+        }
+    }
 }
 
 function handleLogin() {
@@ -584,9 +696,16 @@ function handleRegister() {
     const form = document.getElementById('registerForm');
     const alertDiv = document.getElementById('registerAlert');
     const submitBtn = form.querySelector('button[type="submit"]');
+    const countrySelect = document.getElementById('modal_country');
     
     if (!form || !alertDiv || !submitBtn) {
         console.error('Elementos do formulário não encontrados');
+        return;
+    }
+    
+    // Validar país selecionado
+    if (!countrySelect || !countrySelect.value) {
+        showAlert(alertDiv, 'Por favor, selecione um país', 'error');
         return;
     }
     

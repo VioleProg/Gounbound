@@ -111,9 +111,31 @@ if (!isset($base_path)) {
                     <div class="form-group">
                         <label for="modal_gender">Gênero *</label>
                         <select id="modal_gender" name="gender" required>
-                            <option value="0">Masculino</option>
-                            <option value="1">Feminino</option>
+                            <option value="1">Masculino</option>
+                            <option value="0">Feminino</option>
                         </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modal_country">País *</label>
+                        <div class="country-select-wrapper">
+                            <select id="modal_country" name="country" required style="display: none;">
+                                <option value="">Selecione um país</option>
+                            </select>
+                            <div class="country-select-display" id="countrySelectDisplay">
+                                <div class="country-select-trigger">
+                                    <span class="country-flag-placeholder">🏳️</span>
+                                    <span class="country-name-placeholder">Selecione um país</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="country-select-dropdown" id="countrySelectDropdown">
+                                    <input type="text" class="country-search" id="countrySearch" placeholder="Buscar país...">
+                                    <div class="country-list" id="countryList">
+                                        <div class="country-loading">Carregando países...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <button type="submit" class="btn btn-primary btn-block">Criar Conta</button>
