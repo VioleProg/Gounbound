@@ -1184,6 +1184,7 @@ body {
 
 .country-select-display {
     position: relative;
+    z-index: 1001;
 }
 
 .country-select-trigger {
@@ -1196,6 +1197,10 @@ body {
     background: var(--bg-white);
     cursor: pointer;
     transition: all 0.3s ease;
+    width: 100%;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
 }
 
 .country-select-trigger:hover {
@@ -1236,7 +1241,7 @@ body {
     border: 2px solid var(--border-color);
     border-radius: 8px;
     box-shadow: var(--shadow-lg);
-    z-index: 1000;
+    z-index: 1002;
     display: none;
     max-height: 300px;
     overflow: hidden;

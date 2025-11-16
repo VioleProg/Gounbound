@@ -106,9 +106,11 @@ function register($login, $nick, $email, $password, $gender, $country = '28') {
         // 1. Inserir na tabela gunwcuser (PRINCIPAL - responsável pelas contas)
         // Campos obrigatórios: Id, user, Gender, NickName, Password, Status, Authority, Authority2, E_Mail, Country, AuthorityBackup
         // Campos com DEFAULT serão preenchidos automaticamente: User_Level, MuteTime, RestrictTime, datareg
+        // Country deve ser char(3), então formatar como string de 3 caracteres
+        $country_str = str_pad((string)$country, 3, '0', STR_PAD_LEFT);
         $stmt = $conn->prepare("INSERT INTO gunwcuser (Id, user, Gender, NickName, Password, Status, Authority, Authority2, E_Mail, Country, AuthorityBackup) VALUES (?, ?, ?, ?, ?, '1', 10, 10, ?, ?, 10)");
         // bind_param: s (Id), s (user), i (Gender), s (NickName), s (Password), s (E_Mail), s (Country)
-        $stmt->bind_param("ssissss", $login, $login, $gender, $nick, $password, $email, $country);
+        $stmt->bind_param("ssissss", $login, $login, $gender, $nick, $password, $email, $country_str);
         
         if (!$stmt->execute()) {
             $error_msg = "Erro ao inserir em gunwcuser: " . $stmt->error;
@@ -130,11 +132,27 @@ function register($login, $nick, $email, $password, $gender, $country = '28') {
         }
         
         // 3. Inserir na tabela user (tabela auxiliar)
-        $stmt = $conn->prepare("INSERT INTO user (Id, user, Gender, NickName, Password, Status, MuteTime, RestrictTime, Authority, E_Mail, Country, User_Level, Authority2, datareg) VALUES (?, ?, ?, ?, ?, '1', NULL, NULL, 10, ?, ?, 1, 10, NOW())");
-        $stmt->bind_param("ssissss", $login, $login, $gender, $nick, $password, $email, $country);
+        // Country também é char(3) aqui
+        // MuteTime e RestrictTime: usar NULL se permitido, senão usar data atual
+        // Verificar se as colunas permitem NULL
+        $mute_time = NULL;
+        $restrict_time = NULL;
+        
+        // Tentar inserir com NULL primeiro
+        $stmt = $conn->prepare("INSERT INTO user (Id, user, Gender, NickName, Password, Status, MuteTime, RestrictTime, Authority, E_Mail, Country, User_Level, Authority2, datareg) VALUES (?, ?, ?, ?, ?, '1', ?, ?, 10, ?, ?, 1, 10, NOW())");
+        $stmt->bind_param("ssissssss", $login, $login, $gender, $nick, $password, $mute_time, $restrict_time, $email, $country_str);
         
         if (!$stmt->execute()) {
-            throw new Exception("Erro ao inserir em user: " . $stmt->error);
+            // Se falhar com NULL, tentar com data atual
+            $stmt->close();
+            $mute_time = date('Y-m-d H:i:s');
+            $restrict_time = date('Y-m-d H:i:s');
+            $stmt = $conn->prepare("INSERT INTO user (Id, user, Gender, NickName, Password, Status, MuteTime, RestrictTime, Authority, E_Mail, Country, User_Level, Authority2, datareg) VALUES (?, ?, ?, ?, ?, '1', ?, ?, 10, ?, ?, 1, 10, NOW())");
+            $stmt->bind_param("ssissssss", $login, $login, $gender, $nick, $password, $mute_time, $restrict_time, $email, $country_str);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Erro ao inserir em user: " . $stmt->error);
+            }
         }
         
         // 4. Inserir na tabela cash (moeda virtual)

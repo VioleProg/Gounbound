@@ -4,13 +4,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+            const href = this.getAttribute('href');
+            // Verificar se href é válido e não é apenas '#'
+            if (href && href !== '#' && href.length > 1) {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             }
         });
     });
@@ -103,23 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(card);
     });
 
-    // Add loading state to buttons (excluir botão de tweets e formulários de perfil)
-    const submitButtons = document.querySelectorAll('button[type="submit"]:not(#tweetForm button):not(#editNicknameForm button):not(#editPasswordForm button):not(#editEmailForm button):not(#editAvatarForm button), input[type="submit"]:not(#tweetForm input):not(#editNicknameForm input):not(#editPasswordForm input):not(#editEmailForm input):not(#editAvatarForm input)');
-    submitButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const form = this.closest('form');
-            if (form && form.id !== 'tweetForm' && 
-                form.id !== 'editNicknameForm' && 
-                form.id !== 'editPasswordForm' && 
-                form.id !== 'editEmailForm' && 
-                form.id !== 'editAvatarForm' && 
-                form.checkValidity()) {
-                this.style.opacity = '0.7';
-                this.style.pointerEvents = 'none';
-                this.textContent = 'Processando...';
-            }
-        });
-    });
+    // Removido código genérico que alterava botões para "Processando..."
 });
 
 // Validate individual field
@@ -490,6 +478,16 @@ function openModal(modalId) {
     if (modal) {
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
+        
+        // Se for o modal de registro, inicializar o seletor de países
+        if (modalId === 'registerModal') {
+            // Aguardar um pouco para garantir que o modal está visível
+            setTimeout(() => {
+                console.log('Inicializando seletor de países ao abrir modal');
+                countrySelectInitialized = false; // Resetar para permitir reinicialização
+                initCountrySelect();
+            }, 200); // Aumentar delay para garantir que o modal está totalmente renderizado
+        }
     }
 }
 
@@ -528,13 +526,59 @@ function initModals() {
         });
     }
     
-    const registerForm = document.getElementById('registerForm');
-    if (registerForm) {
-        registerForm.addEventListener('submit', function(e) {
+    // Usar delegação de eventos para capturar o submit do formulário de registro
+    // Isso funciona mesmo se o modal for criado dinamicamente
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (form && form.id === 'registerForm') {
             e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            console.log('Formulário de registro submetido (delegação)');
             handleRegister();
-        });
+            return false;
+        }
+    }, true); // Usar capture phase para garantir que seja capturado primeiro
+    
+    // Também adicionar listener direto quando o formulário existir
+    function attachRegisterListeners() {
+        const registerForm = document.getElementById('registerForm');
+        if (registerForm) {
+            // Remover listeners anteriores
+            const newForm = registerForm.cloneNode(true);
+            registerForm.parentNode.replaceChild(newForm, registerForm);
+            
+            const form = document.getElementById('registerForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                console.log('Formulário de registro submetido (direto)');
+                handleRegister();
+                return false;
+            }, true);
+            
+            // Listener direto no botão como backup
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    console.log('Botão de registro clicado diretamente');
+                    handleRegister();
+                    return false;
+                }, true);
+            }
+        }
     }
+    
+    // Tentar anexar listeners imediatamente
+    attachRegisterListeners();
+    
+    // Tentar novamente após um pequeno delay (caso o modal seja criado dinamicamente)
+    setTimeout(attachRegisterListeners, 500);
+    setTimeout(attachRegisterListeners, 1000);
     
     // Inicializar seletor de países
     initCountrySelect();
@@ -542,54 +586,131 @@ function initModals() {
 
 // Country Select
 let countriesData = [];
+let countrySelectInitialized = false;
+
 function initCountrySelect() {
+    // Buscar elementos diretamente do DOM (não usar variáveis locais que podem ficar desatualizadas)
     const countrySelectDisplay = document.getElementById('countrySelectDisplay');
-    const countrySelectTrigger = countrySelectDisplay?.querySelector('.country-select-trigger');
-    const countrySelectDropdown = document.getElementById('countrySelectDropdown');
-    const countryList = document.getElementById('countryList');
-    const countrySearch = document.getElementById('countrySearch');
-    const countrySelect = document.getElementById('modal_country');
+    if (!countrySelectDisplay) {
+        console.warn('countrySelectDisplay não encontrado');
+        return;
+    }
     
-    if (!countrySelectDisplay || !countryList) return;
+    // Buscar countryList dentro do display
+    let countryList = countrySelectDisplay.querySelector('#countryList') || document.getElementById('countryList');
+    if (!countryList) {
+        console.warn('countryList não encontrado');
+        return;
+    }
+    
+    const countrySelect = document.getElementById('modal_country');
+    const countrySearch = countrySelectDisplay.querySelector('#countrySearch');
+    
+    // Se já foi inicializado, não fazer novamente
+    if (countrySelectInitialized) {
+        console.log('Seletor de países já foi inicializado');
+        return;
+    }
+    
+    countrySelectInitialized = true;
     
     // Carregar países
     const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/get_countries.php';
+    console.log('Carregando países de:', apiPath);
+    
     fetch(apiPath)
-        .then(response => response.json())
+        .then(response => {
+            console.log('Resposta recebida:', response.status, response.statusText);
+            if (!response.ok) {
+                throw new Error('Erro HTTP: ' + response.status);
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.success && data.countries) {
+            console.log('Dados recebidos:', data);
+            // Buscar countryList novamente antes de renderizar (pode ter mudado)
+            const listEl = document.getElementById('countryList');
+            if (!listEl) {
+                console.error('countryList não encontrado para renderizar');
+                return;
+            }
+            
+            if (data.success && data.countries && data.countries.length > 0) {
                 countriesData = data.countries;
-                renderCountries(countriesData);
+                console.log('Países carregados:', countriesData.length);
                 
-                // Preencher select oculto
-                countrySelect.innerHTML = '<option value="">Selecione um país</option>';
-                countriesData.forEach(country => {
-                    const option = document.createElement('option');
-                    option.value = country.name;
-                    option.textContent = country.name;
-                    countrySelect.appendChild(option);
-                });
+                // Renderizar países
+                renderCountriesList(listEl, countriesData);
+                
+                // Preencher select oculto com o número do país
+                const selectEl = document.getElementById('modal_country');
+                if (selectEl) {
+                    selectEl.innerHTML = '<option value="">Selecione um país</option>';
+                    countriesData.forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country.number || country.name;
+                        option.setAttribute('data-name', country.name);
+                        option.textContent = country.name;
+                        selectEl.appendChild(option);
+                    });
+                }
+            } else {
+                console.error('Nenhum país encontrado ou resposta inválida:', data);
+                listEl.innerHTML = '<div class="country-loading">Nenhum país encontrado. Verifique a conexão com o banco de dados.</div>';
             }
         })
         .catch(error => {
             console.error('Erro ao carregar países:', error);
-            countryList.innerHTML = '<div class="country-loading">Erro ao carregar países</div>';
+            const listEl = document.getElementById('countryList');
+            if (listEl) {
+                listEl.innerHTML = '<div class="country-loading">Erro ao carregar países: ' + error.message + '</div>';
+            }
         });
     
-    // Toggle dropdown
-    if (countrySelectTrigger) {
-        countrySelectTrigger.addEventListener('click', function(e) {
+    // Configurar toggle dropdown
+    const trigger = countrySelectDisplay.querySelector('.country-select-trigger');
+    if (trigger) {
+        // Listener direto no trigger - usar capture para garantir que seja capturado primeiro
+        trigger.addEventListener('click', function(e) {
+            e.preventDefault();
             e.stopPropagation();
-            countrySelectDisplay.classList.toggle('active');
+            e.stopImmediatePropagation();
+            console.log('Trigger do país clicado diretamente');
+            const displayEl = document.getElementById('countrySelectDisplay');
+            if (displayEl) {
+                displayEl.classList.toggle('active');
+                console.log('Dropdown ativo:', displayEl.classList.contains('active'));
+            }
+        }, true); // Usar capture phase
+        
+        // Também adicionar listener no display inteiro como backup
+        countrySelectDisplay.addEventListener('click', function(e) {
+            const clickedTrigger = e.target.closest('.country-select-trigger');
+            if (clickedTrigger) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Trigger do país clicado (delegação)');
+                this.classList.toggle('active');
+                console.log('Dropdown ativo:', this.classList.contains('active'));
+            }
         });
+        
+        // Adicionar pointer-events para garantir que seja clicável
+        trigger.style.pointerEvents = 'auto';
+        trigger.style.cursor = 'pointer';
+    } else {
+        console.error('Trigger do seletor de países não encontrado');
     }
     
-    // Fechar ao clicar fora
-    document.addEventListener('click', function(e) {
-        if (!countrySelectDisplay.contains(e.target)) {
-            countrySelectDisplay.classList.remove('active');
-        }
-    });
+    // Fechar ao clicar fora - usar o display atualizado
+    const currentDisplay = document.getElementById('countrySelectDisplay');
+    if (currentDisplay) {
+        document.addEventListener('click', function(e) {
+            if (currentDisplay && !currentDisplay.contains(e.target)) {
+                currentDisplay.classList.remove('active');
+            }
+        });
+    }
     
     // Busca de países
     if (countrySearch) {
@@ -598,34 +719,59 @@ function initCountrySelect() {
             const filtered = countriesData.filter(country => 
                 country.name.toLowerCase().includes(searchTerm)
             );
-            renderCountries(filtered);
+            const listEl = document.getElementById('countryList');
+            if (listEl) {
+                renderCountriesList(listEl, filtered);
+            }
         });
     }
     
-    function renderCountries(countries) {
-        countryList.innerHTML = '';
-        if (countries.length === 0) {
-            countryList.innerHTML = '<div class="country-loading">Nenhum país encontrado</div>';
+    // Função para renderizar países (recebe o elemento como parâmetro)
+    function renderCountriesList(listElement, countries) {
+        if (!listElement) {
+            console.error('listElement não encontrado para renderizar');
             return;
         }
         
+        listElement.innerHTML = '';
+        if (countries.length === 0) {
+            listElement.innerHTML = '<div class="country-loading">Nenhum país encontrado</div>';
+            return;
+        }
+        
+        console.log('Renderizando', countries.length, 'países no elemento:', listElement);
         countries.forEach(country => {
             const item = document.createElement('div');
             item.className = 'country-item';
+            
+            // Garantir que a flag tenha um caminho válido
+            const flagPath = country.flag || 'Assets/pais/default.png';
+            
             item.innerHTML = `
-                <img src="${country.flag}" alt="${country.name}" class="country-flag">
+                <img src="${flagPath}" alt="${country.name}" class="country-flag" onerror="this.src='Assets/pais/default.png'">
                 <span class="country-name">${country.name}</span>
             `;
             item.addEventListener('click', function() {
                 selectCountry(country);
             });
-            countryList.appendChild(item);
+            listElement.appendChild(item);
         });
+        console.log('Países renderizados com sucesso');
+    }
+    
+    // Função wrapper para manter compatibilidade
+    function renderCountries(countries) {
+        const listEl = document.getElementById('countryList');
+        if (listEl) {
+            renderCountriesList(listEl, countries);
+        } else {
+            console.error('countryList não encontrado na função renderCountries');
+        }
     }
     
     function selectCountry(country) {
-        // Atualizar select oculto
-        countrySelect.value = country.name;
+        // Atualizar select oculto com o número do país (não o nome)
+        countrySelect.value = country.number || country.name;
         
         // Atualizar display
         const trigger = countrySelectDisplay.querySelector('.country-select-trigger');
@@ -646,6 +792,8 @@ function initCountrySelect() {
         if (countrySearch) {
             countrySearch.value = '';
         }
+        
+        console.log('País selecionado:', country.name, 'Código:', country.number);
     }
 }
 
@@ -663,9 +811,6 @@ function handleLogin() {
         return;
     }
     
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Entrando...';
-    
     const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/login_ajax.php';
     fetch(apiPath, {
         method: 'POST',
@@ -681,56 +826,116 @@ function handleLogin() {
             }, 1000);
         } else {
             showAlert(alertDiv, data.message, 'error');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Entrar';
         }
     })
     .catch(error => {
         showAlert(alertDiv, 'Erro ao fazer login. Tente novamente.', 'error');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Entrar';
     });
 }
 
 function handleRegister() {
+    console.log('handleRegister chamado');
     const form = document.getElementById('registerForm');
-    const alertDiv = document.getElementById('registerAlert');
-    const submitBtn = form.querySelector('button[type="submit"]');
+    if (!form) {
+        console.error('Formulário não encontrado');
+        alert('Erro: Formulário não encontrado. Recarregue a página.');
+        return;
+    }
+    
+    // Tentar encontrar o alert div de várias formas
+    let alertDiv = document.getElementById('registerAlert');
+    
+    // Se não encontrou, tentar encontrar dentro do modal
+    if (!alertDiv) {
+        const registerModal = document.getElementById('registerModal');
+        if (registerModal) {
+            alertDiv = registerModal.querySelector('#registerAlert');
+        }
+    }
+    
+    // Se ainda não encontrou, criar o elemento
+    if (!alertDiv) {
+        console.warn('Alert div não encontrado, criando um novo');
+        const authCard = form.closest('.auth-card');
+        if (authCard) {
+            alertDiv = document.createElement('div');
+            alertDiv.id = 'registerAlert';
+            alertDiv.className = 'alert';
+            alertDiv.style.display = 'none';
+            // Inserir após o auth-header
+            const authHeader = authCard.querySelector('.auth-header');
+            if (authHeader) {
+                authHeader.insertAdjacentElement('afterend', alertDiv);
+            } else {
+                // Se não tiver auth-header, inserir antes do form
+                form.parentNode.insertBefore(alertDiv, form);
+            }
+        } else {
+            console.error('Não foi possível criar o alert div - auth-card não encontrado');
+            alert('Erro: Não foi possível criar a área de alerta. Recarregue a página.');
+            return;
+        }
+    }
+    
     const countrySelect = document.getElementById('modal_country');
     
-    if (!form || !alertDiv || !submitBtn) {
-        console.error('Elementos do formulário não encontrados');
-        return;
-    }
-    
     // Validar país selecionado
-    if (!countrySelect || !countrySelect.value) {
-        showAlert(alertDiv, 'Por favor, selecione um país', 'error');
+    if (!countrySelect) {
+        console.error('Select de país não encontrado');
+        showAlert(alertDiv, 'Erro: Seletor de país não encontrado', 'error');
         return;
     }
     
-    const formData = new FormData(form);
+    if (!countrySelect.value || countrySelect.value.trim() === '') {
+        showAlert(alertDiv, 'Por favor, selecione um país', 'error');
+        alertDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        return;
+    }
     
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Criando conta...';
+    console.log('País selecionado:', countrySelect.value);
     
     // Limpar alertas anteriores
     alertDiv.style.display = 'none';
     alertDiv.innerHTML = '';
     
+    // Criar FormData manualmente para garantir que todos os campos estão incluídos
+    const formData = new FormData();
+    formData.append('login', form.querySelector('#modal_login')?.value || '');
+    formData.append('nick', form.querySelector('#modal_nick')?.value || '');
+    formData.append('email', form.querySelector('#modal_email')?.value || '');
+    formData.append('email_confirm', form.querySelector('#modal_email_confirm')?.value || '');
+    formData.append('password', form.querySelector('#modal_password_reg')?.value || '');
+    formData.append('password_confirm', form.querySelector('#modal_password_confirm')?.value || '');
+    formData.append('gender', form.querySelector('#modal_gender')?.value || '1');
+    formData.append('country', countrySelect.value);
+    
+    console.log('Dados do formulário:', {
+        login: formData.get('login'),
+        nick: formData.get('nick'),
+        email: formData.get('email'),
+        gender: formData.get('gender'),
+        country: formData.get('country')
+    });
+    
     const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/register_ajax.php';
+    console.log('Enviando para:', apiPath);
     
     fetch(apiPath, {
         method: 'POST',
         body: formData
     })
     .then(response => {
+        console.log('Resposta recebida:', response.status, response.statusText);
         if (!response.ok) {
-            throw new Error('Erro na resposta do servidor: ' + response.status);
+            return response.text().then(text => {
+                console.error('Resposta de erro:', text);
+                throw new Error('Erro na resposta do servidor: ' + response.status + ' - ' + text);
+            });
         }
         return response.json();
     })
     .then(data => {
+        console.log('Dados recebidos:', data);
         if (data.success) {
             // Exibir popup com informações do registro
             if (data.registration_info) {
@@ -744,20 +949,17 @@ function handleRegister() {
                 showAlert(alertDiv, message, 'success');
             }
             
-            // Se houver redirect, redirecionar após fechar o modal (não mais após 2 segundos)
-            // O redirecionamento será feito quando o usuário fechar o modal
+            // Se houver redirect, redirecionar após fechar o modal
             window.registrationRedirect = data.redirect;
         } else {
             showAlert(alertDiv, data.message || 'Erro ao criar conta. Tente novamente.', 'error');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Criar Conta';
+            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     })
     .catch(error => {
         console.error('Erro no registro:', error);
         showAlert(alertDiv, 'Erro ao criar conta: ' + error.message + '. Verifique sua conexão e tente novamente.', 'error');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Criar Conta';
+        alertDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 }
 

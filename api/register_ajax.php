@@ -72,9 +72,30 @@ if (!empty($errors)) {
 }
 
 try {
-    // Converter nome do país para código (por enquanto usar o nome como código)
-    // Se necessário, criar um mapeamento de nomes para códigos numéricos
-    $country_code = $country; // Usar o nome do país como código por enquanto
+    // Converter país para código numérico
+    // O país pode vir como número (Country_Number) ou nome (Country_Name)
+    $country_code = '28'; // Default
+    
+    if (is_numeric($country)) {
+        // Se já é um número, usar diretamente
+        $country_code = (string)$country;
+    } else {
+        // Se é um nome, buscar o Country_Number na tabela country_reference
+        global $conn;
+        $stmt = $conn->prepare("SELECT Country_Number FROM country_reference WHERE Country_Name = ? LIMIT 1");
+        if ($stmt) {
+            $stmt->bind_param("s", $country);
+            $stmt->execute();
+            $result_country = $stmt->get_result();
+            if ($row_country = $result_country->fetch_assoc()) {
+                $country_code = (string)$row_country['Country_Number'];
+            }
+            $stmt->close();
+        }
+    }
+    
+    // Converter para string com 3 caracteres (formato char(3))
+    $country_code = str_pad($country_code, 3, '0', STR_PAD_LEFT);
     
     $result = register($login, $nick, $email, $password, $gender, $country_code);
     if ($result['success']) {
