@@ -473,9 +473,9 @@ body {
 
 .news-content-wrapper {
     display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 3rem;
-    align-items: center;
+    grid-template-columns: 1fr 280px;
+    gap: 2rem;
+    align-items: start;
 }
 
 .news-list-container {
@@ -519,6 +519,12 @@ body {
     border-color: #7dd3fc;
 }
 
+.news-type-notícia {
+    background: #7dd3fc;
+    color: #000;
+    border-color: #7dd3fc;
+}
+
 .news-featured-title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -527,10 +533,19 @@ body {
     line-height: 1.3;
 }
 
+.news-featured-description {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0.75rem 0;
+    line-height: 1.5;
+    max-width: 600px;
+}
+
 .news-featured-date {
     font-size: 0.9rem;
     color: #ffffff;
     font-weight: 500;
+    margin-top: 0.75rem;
 }
 
 .news-featured-date span {
@@ -548,6 +563,13 @@ body {
     display: flex;
     align-items: flex-start;
     gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.news-other-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
 }
 
 .news-other-item .news-type-btn {
@@ -559,9 +581,16 @@ body {
     font-size: 1.1rem;
     font-weight: 600;
     color: #06b6d4;
-    margin: 0;
-    flex: 1;
+    margin: 0 0 0.5rem 0;
     line-height: 1.4;
+}
+
+.news-other-description {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0.25rem 0 0 0;
+    line-height: 1.4;
+    word-wrap: break-word;
 }
 
 .news-other-date {
@@ -570,6 +599,8 @@ body {
     font-weight: 500;
     white-space: nowrap;
     margin-left: auto;
+    align-self: flex-start;
+    padding-top: 0.25rem;
 }
 
 .news-other-date span {
@@ -614,6 +645,9 @@ body {
     background: rgba(255, 255, 255, 0.02);
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.08);
+    align-self: start;
+    position: sticky;
+    top: 2rem;
 }
 
 .news-ranking-title {
@@ -1751,10 +1785,14 @@ body {
     text-align: center;
     color: var(--text-light);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 2rem;
-    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-content p {
+    margin: 0;
 }
 
 .developer-logo {
@@ -1771,8 +1809,8 @@ body {
 }
 
 .developer-logo img {
-    height: 180px;
-    width: 160px;
+    height: 40px;
+    width: auto;
     display: block;
     transition: filter 0.3s ease;
 }

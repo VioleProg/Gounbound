@@ -11,13 +11,13 @@ if (!isset($base_path)) {
         <footer class="main-footer">
             <div class="container">
                 <div class="footer-content">
-                    <p>&copy; <?php echo date('Y'); ?> Gunbound. Todos os direitos reservados.</p>
+                    <p>GunBound &copy; <?php echo date('Y'); ?></p>
                     
                 </div>
-                <a href="https://discord.gg/uWz9kN7ShB" target="_blank" class="developer-logo" title="Desenvolvido por VioleProg">
-                        <img src="<?php echo $base_path; ?>Assets/dev/violeprog.png" alt="VioleProg">
-                </a>
             </div>
+            <a href="https://discord.gg/uWz9kN7ShB" target="_blank" class="developer-logo" title="Desenvolvido por VioleProg">
+                        <img src="<?php echo $base_path; ?>Assets/dev/violeprog.png" alt="VioleProg">
+                    </a>
         </footer>
         </center>
     </div>

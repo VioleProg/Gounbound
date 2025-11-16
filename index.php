@@ -36,11 +36,15 @@ include 'includes/header.php';
                     global $conn;
                     $allNews = [];
                     
-                    // Buscar eventos
+                    // Buscar TODOS os eventos
                     try {
-                        $result = $conn->query("SELECT *, 'Evento' as Type FROM gbevents ORDER BY Date DESC LIMIT 10");
+                        $result = $conn->query("SELECT Id, Title, Text, Text2, Date, Author, 'Evento' as Type FROM gbevents ORDER BY Date DESC LIMIT 10");
                         if ($result) {
                             while ($row = $result->fetch_assoc()) {
+                                // Converter Date de date para datetime se necessário
+                                if (isset($row['Date']) && strlen($row['Date']) == 10) {
+                                    $row['Date'] = $row['Date'] . ' 00:00:00';
+                                }
                                 $allNews[] = $row;
                             }
                         }
@@ -48,21 +52,15 @@ include 'includes/header.php';
                         // Se a tabela não existir, usar dados de exemplo
                     }
                     
-                    // Buscar notícias de manutenção
+                    // Buscar TODAS as notícias (não apenas manutenção e patch)
                     try {
-                        $result = $conn->query("SELECT *, 'Manutenção' as Type FROM gbnews WHERE Title LIKE '%manutenção%' OR Title LIKE '%maintenance%' ORDER BY Date DESC LIMIT 10");
-                        if ($result) {
-                            while ($row = $result->fetch_assoc()) {
-                                $allNews[] = $row;
-                            }
-                        }
-                    } catch (Exception $e) {
-                        // Se não existir, usar exemplos
-                    }
-                    
-                    // Buscar patch notes
-                    try {
-                        $result = $conn->query("SELECT *, 'Atualização' as Type FROM gbnews WHERE Title LIKE '%patch%' OR Title LIKE '%atualização%' ORDER BY Date DESC LIMIT 10");
+                        $result = $conn->query("SELECT Id, Title, Text, Text2, Date, Author, 
+                                                 CASE 
+                                                     WHEN Title LIKE '%manutenção%' OR Title LIKE '%maintenance%' THEN 'Manutenção'
+                                                     WHEN Title LIKE '%patch%' OR Title LIKE '%atualização%' OR Title LIKE '%update%' THEN 'Atualização'
+                                                     ELSE 'Notícia'
+                                                 END as Type 
+                                                 FROM gbnews ORDER BY Date DESC LIMIT 10");
                         if ($result) {
                             while ($row = $result->fetch_assoc()) {
                                 $allNews[] = $row;
@@ -98,8 +96,10 @@ include 'includes/header.php';
                             $typeLabel = 'Event';
                         } elseif ($featuredNews['Type'] == 'Manutenção') {
                             $typeLabel = 'Notice';
-                        } else {
+                        } elseif ($featuredNews['Type'] == 'Atualização') {
                             $typeLabel = 'Update';
+                        } else {
+                            $typeLabel = 'News';
                         }
                     ?>
                     <div class="news-featured">
@@ -107,6 +107,9 @@ include 'includes/header.php';
                             <?php echo $typeLabel; ?>
                         </button>
                         <h3 class="news-featured-title"><?php echo htmlspecialchars($featuredNews['Title']); ?></h3>
+                        <?php if (!empty($featuredNews['Text'])): ?>
+                        <p class="news-featured-description"><?php echo htmlspecialchars(strip_tags($featuredNews['Text'])); ?></p>
+                        <?php endif; ?>
                         <div class="news-featured-date">
                             <?php echo date('Y.m.d', strtotime($featuredNews['Date'])); ?> <span><?php echo date('H', strtotime($featuredNews['Date'])); ?></span>
                         </div>
@@ -120,15 +123,22 @@ include 'includes/header.php';
                                 $typeLabel = 'Event';
                             } elseif ($news['Type'] == 'Manutenção') {
                                 $typeLabel = 'Notice';
-                            } else {
+                            } elseif ($news['Type'] == 'Atualização') {
                                 $typeLabel = 'Update';
+                            } else {
+                                $typeLabel = 'News';
                             }
                         ?>
                         <div class="news-other-item">
                             <button class="news-type-btn news-type-<?php echo strtolower($news['Type']); ?>">
                                 <?php echo $typeLabel; ?>
                             </button>
-                            <h4 class="news-other-title"><?php echo htmlspecialchars($news['Title']); ?></h4>
+                            <div style="flex: 1; min-width: 0;">
+                                <h4 class="news-other-title"><?php echo htmlspecialchars($news['Title']); ?></h4>
+                                <?php if (!empty($news['Text'])): ?>
+                                <p class="news-other-description"><?php echo htmlspecialchars(strip_tags($news['Text'])); ?></p>
+                                <?php endif; ?>
+                            </div>
                             <div class="news-other-date">
                                 <?php echo date('Y.m.d', strtotime($news['Date'])); ?> <span><?php echo date('H', strtotime($news['Date'])); ?></span>
                             </div>
@@ -150,17 +160,17 @@ include 'includes/header.php';
                     <h3 class="news-ranking-title">Top 3</h3>
                     <div class="news-ranking-list">
                         <?php
-                        // Buscar top 5 jogadores
+                        // Buscar top 3 jogadores
                         try {
-                            $top5_query = "SELECT g.Nickname, g.TotalScore, g.Money, g.TotalRank 
+                            $top3_query = "SELECT g.Nickname, g.TotalScore, g.Money, g.TotalRank 
                                            FROM game g 
                                            ORDER BY g.TotalRank ASC 
                                            LIMIT 3";
-                            $top5_result = $conn->query($top5_query);
+                            $top3_result = $conn->query($top3_query);
                             
-                            if ($top5_result && $top5_result->num_rows > 0) {
+                            if ($top3_result && $top3_result->num_rows > 0) {
                                 $position = 1;
-                                while ($player = $top5_result->fetch_assoc()) {
+                                while ($player = $top3_result->fetch_assoc()) {
                                     $nickname = htmlspecialchars($player['Nickname'] ?? 'N/A');
                                     $score = number_format($player['TotalScore']);
                                     $rank = $player['TotalRank'];
