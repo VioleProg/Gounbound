@@ -8,17 +8,9 @@ include 'includes/header.php';
 
 <main class="main-content">
     <section class="hero-section">
-        <div class="hero-slider">
-            <div class="slide active">
-                <img src="Assets/banner1.jpg" alt="Banner 1">
-            </div>
-            <div class="slide">
-                <img src="Assets/webeventohallo1.png" alt="Evento Halloween 1">
-            </div>
-            <div class="slide">
-                <img src="Assets/webeventohallo2.png" alt="Evento Halloween 2">
-            </div>
-        </div>
+        <video class="hero-video" autoplay loop muted playsinline>
+            <source src="Assets/banner.mp4" type="video/mp4">
+        </video>
         <div class="hero-content">
             <div class="hero-logo">
                 <img src="Assets/logo.png" alt="Gunbound Logo">
@@ -33,15 +25,6 @@ include 'includes/header.php';
                     <a href="http://www.google.com" target="_blank" class="btn btn-primary btn-large"><i class="fas fa-download"></i> Download</a>
                 </div>
             <?php endif; ?>
-        </div>
-        <div class="slider-controls">
-            <button class="slider-btn prev" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></button>
-            <button class="slider-btn next" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></button>
-        </div>
-        <div class="slider-dots">
-            <span class="dot active" onclick="currentSlide(1)"></span>
-            <span class="dot" onclick="currentSlide(2)"></span>
-            <span class="dot" onclick="currentSlide(3)"></span>
         </div>
     </section>
 
