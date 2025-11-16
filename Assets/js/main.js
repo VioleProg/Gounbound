@@ -474,5 +474,273 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Inicializar modais
+    initModals();
 });
+
+// Modal Functions
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+// Fechar modal ao clicar no backdrop
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('auth-modal')) {
+        closeModal(event.target.id);
+    }
+});
+
+// Fechar modal com ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const activeModal = document.querySelector('.auth-modal.active');
+        if (activeModal) {
+            closeModal(activeModal.id);
+        }
+    }
+});
+
+// Login Form Handler
+function initModals() {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleLogin();
+        });
+    }
+    
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleRegister();
+        });
+    }
+}
+
+function handleLogin() {
+    const form = document.getElementById('loginForm');
+    const alertDiv = document.getElementById('loginAlert');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    const formData = new FormData(form);
+    const username = formData.get('username');
+    const password = formData.get('password');
+    
+    if (!username || !password) {
+        showAlert(alertDiv, 'Por favor, preencha todos os campos', 'error');
+        return;
+    }
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Entrando...';
+    
+    const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/login_ajax.php';
+    fetch(apiPath, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(alertDiv, data.message, 'success');
+            setTimeout(() => {
+                const redirectPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + (data.redirect || 'dashboard.php');
+                window.location.href = redirectPath;
+            }, 1000);
+        } else {
+            showAlert(alertDiv, data.message, 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Entrar';
+        }
+    })
+    .catch(error => {
+        showAlert(alertDiv, 'Erro ao fazer login. Tente novamente.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Entrar';
+    });
+}
+
+function handleRegister() {
+    const form = document.getElementById('registerForm');
+    const alertDiv = document.getElementById('registerAlert');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    
+    if (!form || !alertDiv || !submitBtn) {
+        console.error('Elementos do formulário não encontrados');
+        return;
+    }
+    
+    const formData = new FormData(form);
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Criando conta...';
+    
+    // Limpar alertas anteriores
+    alertDiv.style.display = 'none';
+    alertDiv.innerHTML = '';
+    
+    const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/register_ajax.php';
+    
+    fetch(apiPath, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro na resposta do servidor: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showAlert(alertDiv, data.message, 'success');
+            setTimeout(() => {
+                const redirectPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + (data.redirect || 'dashboard.php');
+                window.location.href = redirectPath;
+            }, 1000);
+        } else {
+            showAlert(alertDiv, data.message || 'Erro ao criar conta. Tente novamente.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Criar Conta';
+        }
+    })
+    .catch(error => {
+        console.error('Erro no registro:', error);
+        showAlert(alertDiv, 'Erro ao criar conta: ' + error.message + '. Verifique sua conexão e tente novamente.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Criar Conta';
+    });
+}
+
+function showAlert(alertDiv, message, type) {
+    if (!alertDiv) return;
+    
+    alertDiv.className = 'alert alert-' + type;
+    alertDiv.innerHTML = message;
+    alertDiv.style.display = 'block';
+    
+    // Scroll to alert
+    alertDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Ranking Functions
+let currentRankingPage = 1;
+let rankingSearchTimeout = null;
+
+function getRankingFilters() {
+    const searchInput = document.getElementById('rankingSearch');
+    const sortSelect = document.getElementById('rankingSortBy');
+    
+    return {
+        search: searchInput ? searchInput.value.trim() : '',
+        sort_by: sortSelect ? sortSelect.value : 'rank'
+    };
+}
+
+function loadRanking(page = 1, filters = null) {
+    if (!filters) {
+        filters = getRankingFilters();
+    }
+    
+    currentRankingPage = page;
+    const tableBody = document.getElementById('rankingTableBody');
+    const paginationDiv = document.getElementById('rankingPagination');
+    
+    if (tableBody) {
+        tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Carregando...</td></tr>';
+    }
+    
+    // Construir URL com parâmetros
+    const params = new URLSearchParams({
+        page: page,
+        sort_by: filters.sort_by || 'rank'
+    });
+    
+    if (filters.search) {
+        params.append('search', filters.search);
+    }
+    
+    const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/ranking_ajax.php?' + params.toString();
+    
+    fetch(apiPath)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar ranking');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                if (tableBody) {
+                    tableBody.innerHTML = data.html;
+                }
+                if (paginationDiv) {
+                    paginationDiv.innerHTML = data.pagination;
+                }
+            } else {
+                if (tableBody) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Erro ao carregar ranking</td></tr>';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar ranking:', error);
+            if (tableBody) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Erro ao carregar ranking</td></tr>';
+            }
+        });
+}
+
+function loadRankingPage(page, filters = null) {
+    loadRanking(page, filters);
+}
+
+function handleRankingSearch(event) {
+    // Se pressionar Enter, buscar imediatamente
+    if (event.key === 'Enter') {
+        if (rankingSearchTimeout) {
+            clearTimeout(rankingSearchTimeout);
+        }
+        loadRanking(1, getRankingFilters());
+        return;
+    }
+    
+    // Debounce: aguardar 500ms após parar de digitar
+    if (rankingSearchTimeout) {
+        clearTimeout(rankingSearchTimeout);
+    }
+    
+    rankingSearchTimeout = setTimeout(() => {
+        loadRanking(1, getRankingFilters());
+    }, 500);
+}
+
+function clearRankingSearch() {
+    const searchInput = document.getElementById('rankingSearch');
+    const sortSelect = document.getElementById('rankingSortBy');
+    
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    if (sortSelect) {
+        sortSelect.value = 'rank';
+    }
+    
+    loadRanking(1, { search: '', sort_by: 'rank' });
+}
 

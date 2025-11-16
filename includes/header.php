@@ -16,6 +16,9 @@ if (strpos(__DIR__, '/admin') !== false || strpos(__DIR__, '\\admin') !== false)
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script>
+        var BASE_PATH = '<?php echo $base_path; ?>';
+    </script>
 </head>
 <body>
     <div class="page-wrapper">
@@ -25,7 +28,7 @@ if (strpos(__DIR__, '/admin') !== false || strpos(__DIR__, '\\admin') !== false)
                     <nav class="main-nav">
                         <ul class="nav-menu">
                             <li><a href="<?php echo $base_path; ?>index.php" class="nav-link"><i class="fas fa-home"></i> <span>Início</span></a></li>
-                            <li><a href="<?php echo $base_path; ?>ranking.php" class="nav-link"><i class="fas fa-trophy"></i> <span>Ranking</span></a></li>
+                            <li><a href="#" class="nav-link" onclick="event.preventDefault(); openModal('rankingModal'); loadRanking();"><i class="fas fa-trophy"></i> <span>Ranking</span></a></li>
                             <?php if (isLoggedIn()): ?>
                                 <li><a href="<?php echo $base_path; ?>dashboard.php" class="nav-link"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a></li>
                                 <li><a href="<?php echo $base_path; ?>profile.php" class="nav-link"><i class="fas fa-user"></i> <span>Perfil</span></a></li>
@@ -34,8 +37,8 @@ if (strpos(__DIR__, '/admin') !== false || strpos(__DIR__, '\\admin') !== false)
                                 <?php endif; ?>
                                 <li><a href="<?php echo $base_path; ?>logout.php" class="nav-link logout-link"><i class="fas fa-sign-out-alt"></i> <span>Sair</span></a></li>
                             <?php else: ?>
-                                <li><a href="<?php echo $base_path; ?>login.php" class="nav-link"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a></li>
-                                <li><a href="<?php echo $base_path; ?>register.php" class="nav-link btn-register"><i class="fas fa-user-plus"></i> <span>Registrar</span></a></li>
+                                <li><a href="#" class="nav-link" onclick="event.preventDefault(); openModal('loginModal');"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a></li>
+                                <li><a href="#" class="nav-link btn-register" onclick="event.preventDefault(); openModal('registerModal');"><i class="fas fa-user-plus"></i> <span>Registrar</span></a></li>
                             <?php endif; ?>
                         </ul>
                         <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
