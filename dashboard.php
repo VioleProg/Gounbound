@@ -71,8 +71,39 @@ $vip_level = $has_vip ? 'VIP' : 'Normal';
 $has_est_drag = false;
 $horns = 0;
 
-// Win Rate (precisaria de tabela de batalhas - usando placeholder)
-$win_rate = 0; // TODO: Calcular de tabela de batalhas se existir
+// Win Rate (calcular da tabela playlog)
+$win_rate = 0;
+$win_count = 0;
+$total_games = 0;
+try {
+    $stmt = $conn->prepare("SELECT * FROM playlog WHERE S0_ID = ? OR S1_ID = ? OR S2_ID = ? OR S3_ID = ? OR S4_ID = ? OR S5_ID = ? OR S6_ID = ? OR S7_ID = ?");
+    $stmt->bind_param("ssssssss", $user_id, $user_id, $user_id, $user_id, $user_id, $user_id, $user_id, $user_id);
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $total_games++;
+            $win_team = $row['WinTeamOrPlayer'] ?? 0;
+            // Verificar se o usuário está no time vencedor
+            if (($win_team == 0 && $row['S0_ID'] == $user_id) ||
+                ($win_team == 1 && $row['S1_ID'] == $user_id) ||
+                ($win_team == 2 && $row['S2_ID'] == $user_id) ||
+                ($win_team == 3 && $row['S3_ID'] == $user_id) ||
+                ($win_team == 4 && $row['S4_ID'] == $user_id) ||
+                ($win_team == 5 && $row['S5_ID'] == $user_id) ||
+                ($win_team == 6 && $row['S6_ID'] == $user_id) ||
+                ($win_team == 7 && $row['S7_ID'] == $user_id)) {
+                $win_count++;
+            }
+        }
+        if ($total_games > 0) {
+            $win_rate = round(($win_count / $total_games) * 100, 0);
+        }
+    }
+    $stmt->close();
+} catch (Exception $e) {
+    // Se a tabela não existir, manter win_rate = 0
+    error_log("Erro ao calcular win rate: " . $e->getMessage());
+}
 
 // GP Mensal (usando SeasonScore)
 $gp_mensal = $user_info['SeasonScore'] ?? 0;
@@ -270,7 +301,13 @@ include 'includes/header.php';
                 </div>
                 <div class="ranking-item">
                     <span class="ranking-label">Win Rate:</span>
-                    <span class="ranking-value">/ [<?php echo $win_rate; ?>%]</span>
+                    <span class="ranking-value">
+                        <?php if ($total_games > 0): ?>
+                            <?php echo $win_count; ?> / <?php echo $total_games; ?> [<?php echo $win_rate; ?>%]
+                        <?php else: ?>
+                            / [0%]
+                        <?php endif; ?>
+                    </span>
                 </div>
             </div>
         </div>

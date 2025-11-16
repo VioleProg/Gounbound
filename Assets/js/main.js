@@ -789,35 +789,42 @@ function loadAvatars() {
             return response.json();
         })
         .then(data => {
+            console.log('Resposta da API de avatares:', data);
             if (data.success) {
                 // Renderizar avatares
                 if (avatarsList) {
-                    if (data.avatars && data.avatars.length > 0) {
+                    console.log('Avatares recebidos:', data.avatars);
+                    console.log('Quantidade de avatares:', data.avatars ? data.avatars.length : 0);
+                    if (data.avatars && Array.isArray(data.avatars) && data.avatars.length > 0) {
+                        console.log('Renderizando ' + data.avatars.length + ' avatares');
                         avatarsList.innerHTML = data.avatars.map(avatar => {
-                            const itemCode = avatar.Item || '';
-                            const avatarName = avatar.Name || 'Desconhecido';
-                            const avatarType = avatar.Type || 'Unknown';
+                            const itemCode = String(avatar.Item || avatar.item || '');
+                            const avatarName = String(avatar.Name || avatar.name || 'Desconhecido');
+                            const avatarType = String(avatar.Type || avatar.type || 'Unknown');
                             const typeIcon = getTypeIcon(avatarType);
                             
+                            // Escapar caracteres especiais para evitar problemas com aspas
+                            const safeItemCode = itemCode.replace(/'/g, "\\'");
+                            
                             return `
-                                <tr data-item="${itemCode}">
+                                <tr data-item="${safeItemCode}">
                                     <td>
                                         <div class="avatar-image">
-                                            <img src="get_avatar_image.php?item=${itemCode}" alt="${avatarName}" onerror="this.src='Assets/images/no_avatar.png'">
+                                            <img src="${BASE_PATH || ''}get_avatar_image.php?item=${itemCode}" alt="${avatarName.replace(/"/g, '&quot;')}" onerror="this.src='${BASE_PATH || ''}Assets/images/no_avatar.png'">
                                         </div>
                                     </td>
                                     <td>
                                         <div class="avatar-type-icon">${typeIcon}</div>
                                     </td>
                                     <td>
-                                        <div class="avatar-name">${avatarName}</div>
+                                        <div class="avatar-name">${avatarName.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
                                     </td>
                                     <td>
                                         <div class="avatar-actions">
-                                            <button class="btn-delete" onclick="deleteAvatar('${itemCode}', false)">
+                                            <button class="btn-delete" onclick="deleteAvatar('${safeItemCode}', false)">
                                                 DELETE
                                             </button>
-                                            <button class="btn-closet" onclick="moveToCloset('${itemCode}')">
+                                            <button class="btn-closet" onclick="moveToCloset('${safeItemCode}')">
                                                 CLOSET
                                             </button>
                                         </div>
@@ -826,38 +833,43 @@ function loadAvatars() {
                             `;
                         }).join('');
                     } else {
-                        avatarsList.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum avatar encontrado</td></tr>';
+                        console.log('Nenhum avatar encontrado. Debug:', data.debug);
+                        avatarsList.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum avatar encontrado' + (data.debug ? '<br><small>Debug: user_id=' + (data.debug.user_id || 'N/A') + ', test_count=' + (data.debug.test_count || 0) + ', avatars_count=' + (data.debug.avatars_count || 0) + '</small>' : '') + '</td></tr>';
                     }
                 }
                 
                 // Renderizar closet
                 if (closetList) {
-                    if (data.closet_avatars && data.closet_avatars.length > 0) {
+                    if (data.closet_avatars && Array.isArray(data.closet_avatars) && data.closet_avatars.length > 0) {
+                        console.log('Renderizando ' + data.closet_avatars.length + ' avatares do closet');
                         closetList.innerHTML = data.closet_avatars.map(avatar => {
-                            const itemCode = avatar.Item || '';
-                            const avatarName = avatar.Name || 'Desconhecido';
-                            const avatarType = avatar.Type || 'Unknown';
+                            const itemCode = String(avatar.Item || avatar.item || '');
+                            const avatarName = String(avatar.Name || avatar.name || 'Desconhecido');
+                            const avatarType = String(avatar.Type || avatar.type || 'Unknown');
                             const typeIcon = getTypeIcon(avatarType);
                             
+                            // Escapar caracteres especiais
+                            const safeItemCode = itemCode.replace(/'/g, "\\'");
+                            
                             return `
-                                <tr data-item="${itemCode}">
+                                <tr data-item="${safeItemCode}">
                                     <td>
                                         <div class="avatar-image">
-                                            <img src="get_avatar_image.php?item=${itemCode}" alt="${avatarName}" onerror="this.src='Assets/images/no_avatar.png'">
+                                            <img src="${BASE_PATH || ''}get_avatar_image.php?item=${itemCode}" alt="${avatarName.replace(/"/g, '&quot;')}" onerror="this.src='${BASE_PATH || ''}Assets/images/no_avatar.png'">
                                         </div>
                                     </td>
                                     <td>
                                         <div class="avatar-type-icon">${typeIcon}</div>
                                     </td>
                                     <td>
-                                        <div class="avatar-name">${avatarName}</div>
+                                        <div class="avatar-name">${avatarName.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
                                     </td>
                                     <td>
                                         <div class="avatar-actions">
-                                            <button class="btn-delete" onclick="deleteAvatar('${itemCode}', true)">
+                                            <button class="btn-delete" onclick="deleteAvatar('${safeItemCode}', true)">
                                                 DELETE
                                             </button>
-                                            <button class="btn-recover" onclick="recoverFromCloset('${itemCode}')">
+                                            <button class="btn-recover" onclick="recoverFromCloset('${safeItemCode}')">
                                                 RECUPERAR
                                             </button>
                                         </div>
@@ -870,12 +882,13 @@ function loadAvatars() {
                     }
                 }
             } else {
+                console.error('Erro na resposta da API:', data);
                 const errorMsg = data.message || 'Erro desconhecido';
                 if (avatarsList) {
-                    avatarsList.innerHTML = '<tr><td colspan="4" class="text-center">Erro: ' + errorMsg + '</td></tr>';
+                    avatarsList.innerHTML = '<tr><td colspan="4" class="text-center">Erro: ' + errorMsg + (data.debug ? ' (Debug: ' + JSON.stringify(data.debug) + ')' : '') + '</td></tr>';
                 }
                 if (closetList) {
-                    closetList.innerHTML = '<tr><td colspan="4" class="text-center">Erro: ' + errorMsg + '</td></tr>';
+                    closetList.innerHTML = '<tr><td colspan="4" class="text-center">Erro: ' + errorMsg + (data.debug ? ' (Debug: ' + JSON.stringify(data.debug) + ')' : '') + '</td></tr>';
                 }
             }
         })
@@ -890,62 +903,145 @@ function loadAvatars() {
         });
 }
 
-function moveToCloset(item) {
-    if (!confirm('Deseja mover este avatar para o closet?')) return;
-    
-    const formData = new FormData();
-    formData.append('action', 'move_to_closet');
-    formData.append('item', item);
-    
-    const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/avatar_closet.php';
-    
-    fetch(apiPath, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            loadAvatars();
-        } else {
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        alert('Erro ao mover avatar');
+// Sistema de Popup para Confirmações e Alertas
+let confirmCallback = null;
+
+function showConfirmModal(message, title = 'Confirmação', okText = 'OK', cancelText = 'Cancelar') {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('confirmModal');
+        const messageEl = document.getElementById('confirmModalMessage');
+        const titleEl = document.getElementById('confirmModalTitle');
+        const okBtn = document.getElementById('confirmModalOk');
+        const cancelBtn = document.getElementById('confirmModalCancel');
+        
+        messageEl.textContent = message;
+        titleEl.textContent = title;
+        okBtn.textContent = okText;
+        cancelBtn.textContent = cancelText;
+        
+        confirmCallback = resolve;
+        modal.style.display = 'flex';
     });
+}
+
+function closeConfirmModal(result) {
+    const modal = document.getElementById('confirmModal');
+    modal.style.display = 'none';
+    if (confirmCallback) {
+        confirmCallback(result);
+        confirmCallback = null;
+    }
+}
+
+function showAlertModal(message, title = 'Aviso') {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('alertModal');
+        const messageEl = document.getElementById('alertModalMessage');
+        
+        messageEl.textContent = message;
+        
+        modal.style.display = 'flex';
+        
+        // Auto-close após 3 segundos se o usuário não clicar
+        setTimeout(() => {
+            if (modal.style.display === 'flex') {
+                closeAlertModal();
+                resolve();
+            }
+        }, 3000);
+    });
+}
+
+function closeAlertModal() {
+    const modal = document.getElementById('alertModal');
+    modal.style.display = 'none';
+}
+
+// Fechar modais ao clicar fora
+document.addEventListener('click', function(event) {
+    const confirmModal = document.getElementById('confirmModal');
+    const alertModal = document.getElementById('alertModal');
+    
+    if (event.target === confirmModal) {
+        closeConfirmModal(false);
+    }
+    if (event.target === alertModal) {
+        closeAlertModal();
+    }
+});
+
+function moveToCloset(item) {
+    console.log('moveToCloset chamado com item:', item);
+    showConfirmModal('Deseja mover este avatar para o closet?', 'Mover para Closet', 'Sim', 'Não')
+        .then((confirmed) => {
+            console.log('Confirmação:', confirmed);
+            if (!confirmed) return;
+            
+            const formData = new FormData();
+            formData.append('action', 'move_to_closet');
+            formData.append('item', item);
+            
+            const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/avatar_closet.php';
+            console.log('Enviando requisição para:', apiPath, 'com item:', item);
+            
+            fetch(apiPath, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Resposta recebida:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Dados recebidos:', data);
+                if (data.success) {
+                    showAlertModal(data.message, 'Sucesso');
+                    loadAvatars();
+                } else {
+                    showAlertModal(data.message || 'Erro desconhecido', 'Erro');
+                }
+            })
+            .catch(error => {
+                console.error('Erro na requisição:', error);
+                showAlertModal('Erro ao mover avatar: ' + error.message, 'Erro');
+            });
+        });
 }
 
 function recoverFromCloset(item) {
-    if (!confirm('Deseja recuperar este avatar do closet?')) return;
-    
-    const formData = new FormData();
-    formData.append('action', 'recover_from_closet');
-    formData.append('item', item);
-    
-    const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/avatar_closet.php';
-    
-    fetch(apiPath, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            loadAvatars();
-        } else {
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        alert('Erro ao recuperar avatar');
-    });
+    showConfirmModal('Deseja recuperar este avatar do closet?', 'Recuperar do Closet', 'Sim', 'Não')
+        .then((confirmed) => {
+            if (!confirmed) return;
+            
+            const formData = new FormData();
+            formData.append('action', 'recover_from_closet');
+            formData.append('item', item);
+            
+            const apiPath = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '') + 'api/avatar_closet.php';
+            
+            fetch(apiPath, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlertModal(data.message, 'Sucesso');
+                    loadAvatars();
+                } else {
+                    showAlertModal(data.message, 'Erro');
+                }
+            })
+            .catch(error => {
+                showAlertModal('Erro ao recuperar avatar', 'Erro');
+            });
+        });
 }
 
 function deleteAvatar(item, fromCloset) {
-    if (!confirm('Tem certeza que deseja deletar este avatar? Esta ação não pode ser desfeita!')) return;
+    showConfirmModal('Tem certeza que deseja deletar este avatar? Esta ação não pode ser desfeita!', 'Confirmar Exclusão', 'Sim, Deletar', 'Cancelar')
+        .then((confirmed) => {
+            if (!confirmed) return;
     
     const formData = new FormData();
     formData.append('action', 'delete');
@@ -958,18 +1054,19 @@ function deleteAvatar(item, fromCloset) {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            loadAvatars();
-        } else {
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        alert('Erro ao deletar avatar');
-    });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlertModal(data.message, 'Sucesso');
+                    loadAvatars();
+                } else {
+                    showAlertModal(data.message, 'Erro');
+                }
+            })
+            .catch(error => {
+                showAlertModal('Erro ao deletar avatar', 'Erro');
+            });
+        });
 }
 
 function sortAvatars() {

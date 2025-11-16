@@ -180,7 +180,7 @@ function register($login, $nick, $email, $password, $gender, $country = '28') {
 function getUserInfo($user_id) {
     global $conn;
     
-    $stmt = $conn->prepare("SELECT g.*, gw.E_Mail, gw.Authority, gw.Status FROM game g LEFT JOIN gunwcuser gw ON g.Id = gw.Id WHERE g.Id = ?");
+    $stmt = $conn->prepare("SELECT g.*, gw.E_Mail, gw.Authority, gw.Status, gw.imagem_perfil FROM game g LEFT JOIN gunwcuser gw ON g.Id = gw.Id WHERE g.Id = ?");
     $stmt->bind_param("s", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();

@@ -238,6 +238,37 @@ if (!isset($base_path)) {
         </div>
     </div>
     
+    <!-- Modal de Confirmação/Alerta -->
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-modal-content">
+            <div class="confirm-modal-header">
+                <h3 id="confirmModalTitle">Confirmação</h3>
+            </div>
+            <div class="confirm-modal-body">
+                <p id="confirmModalMessage"></p>
+            </div>
+            <div class="confirm-modal-footer">
+                <button class="btn btn-secondary" id="confirmModalCancel" onclick="closeConfirmModal(false)">Cancelar</button>
+                <button class="btn btn-primary" id="confirmModalOk" onclick="closeConfirmModal(true)">OK</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Alerta (apenas mensagem) -->
+    <div class="alert-modal" id="alertModal">
+        <div class="alert-modal-content">
+            <div class="alert-modal-header">
+                <h3>Aviso</h3>
+            </div>
+            <div class="alert-modal-body">
+                <p id="alertModalMessage"></p>
+            </div>
+            <div class="alert-modal-footer">
+                <button class="btn btn-primary" onclick="closeAlertModal()">OK</button>
+            </div>
+        </div>
+    </div>
+    
     <script src="<?php echo $base_path; ?>Assets/js/main.js"></script>
 </body>
 </html>
