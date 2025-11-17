@@ -90,6 +90,9 @@ $total_banned = $ban_row['total'] ?? 0;
                 <a href="add_event.php" class="action-button">
                     <i class="fas fa-calendar-alt"></i> Adicionar Evento
                 </a>
+                <a href="manage_missions.php" class="action-button">
+                    <i class="fas fa-tasks"></i> Gerenciar Missões
+                </a>
             </div>
         </div>
     <?php else: ?>
@@ -141,6 +144,9 @@ $total_banned = $ban_row['total'] ?? 0;
                 </a>
                 <a href="add_event.php" class="action-button">
                     <i class="fas fa-calendar-alt"></i> Adicionar Evento
+                </a>
+                <a href="manage_missions.php" class="action-button">
+                    <i class="fas fa-tasks"></i> Gerenciar Missões
                 </a>
             </div>
         </div>

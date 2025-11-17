@@ -31,6 +31,7 @@ if (strpos(__DIR__, '/admin') !== false || strpos(__DIR__, '\\admin') !== false)
                             <li><a href="#" class="nav-link" onclick="event.preventDefault(); openModal('rankingModal'); loadRanking();"><i class="fas fa-trophy"></i> <span>Ranking</span></a></li>
                             <?php if (isLoggedIn()): ?>
                                 <li><a href="<?php echo $base_path; ?>dashboard.php" class="nav-link"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a></li>
+                                <li><a href="<?php echo $base_path; ?>missions.php" class="nav-link"><i class="fas fa-tasks"></i> <span>Missões</span></a></li>
                                 <li><a href="<?php echo $base_path; ?>profile.php" class="nav-link"><i class="fas fa-user"></i> <span>Perfil</span></a></li>
                                 <?php if (isAdmin()): ?>
                                     <li><a href="<?php echo $base_path; ?>paineladmin" class="nav-link admin-link"><i class="fas fa-shield-alt"></i> <span>Admin</span></a></li>

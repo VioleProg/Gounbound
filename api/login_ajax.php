@@ -23,6 +23,12 @@ if (empty($username) || empty($password)) {
 }
 
 if (login($username, $password)) {
+    // Atualizar missão de login diário
+    if (isLoggedIn()) {
+        require_once '../includes/mission_functions.php';
+        updateMissionProgress($_SESSION['user_id'], 'daily_login', 1);
+    }
+    
     echo json_encode(['success' => true, 'message' => 'Login realizado com sucesso!', 'redirect' => 'dashboard.php']);
 } else {
     echo json_encode(['success' => false, 'message' => 'Usuário ou senha incorretos']);

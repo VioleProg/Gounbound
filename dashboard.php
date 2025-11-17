@@ -2,11 +2,17 @@
 require_once 'config.php';
 require_once 'includes/functions.php';
 require_once 'includes/rank_functions.php';
+require_once 'includes/mission_functions.php';
 
 if (!isLoggedIn()) {
     header('Location: login.php');
     exit;
 }
+
+// Verificar missões de rank e ranking ao acessar o dashboard
+require_once 'includes/mission_functions.php';
+checkRankMission($_SESSION['user_id']);
+checkRankingMissions($_SESSION['user_id']);
 
 $user_info = getUserInfo($_SESSION['user_id']);
 $user_id = $_SESSION['user_id'];

@@ -105,6 +105,11 @@ if ($action === 'send') {
         // Commit da transação
         $conn->commit();
         
+        // Registrar gasto de cash e atualizar missões
+        require_once '../includes/mission_functions.php';
+        recordCashSpending($user_id, $cash_cost, 'Envio de tweet');
+        updateMissionProgress($user_id, 'send_tweets', 1);
+        
         echo json_encode([
             'success' => true, 
             'message' => 'Tweet enviado com sucesso!',
