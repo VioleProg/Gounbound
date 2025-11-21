@@ -1,5 +1,7 @@
 # Gunbound - Site Profissional
 
+https://youtu.be/IDZP2BCJ4ug
+
 Site moderno e profissional para o servidor Gunbound (Gunbound).
 
 ## Características
